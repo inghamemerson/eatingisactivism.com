@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta property="og:url" content="https://eatingisactivism.com/">
+  <meta property="og:type" content="website">
+  <title>Eating is Activism</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+</head>
+<body>
+  <div class="container mx-auto">
+    <h1 class="text-center font-medium text-3xl mb-10">Eating is Activism</h1>
+
+    <div class="map-embed mb-10">
+      <div id="map" class="w-full h-full"></div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
+      {{ range .locations }}
+        <div class="bg-white p-5 rounded-lg shadow-md">
+          <h3>{{ .Name }}</h3>
+          <p>{{ .Description }}</p>
+          <p>{{ .Url }}</p>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+
+  <script>
+    const locations = JSON.parse({{ .locationsJSON }});
+    mapboxgl.accessToken = {{ .mapboxToken }};
+    const map = new mapboxgl.Map({
+      attributionControl: false,
+      compact: true,
+      container: 'map',
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: [-98.5556199, 39.8097343],
+      zoom: 3
+    });
+
+    map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true,
+      showUserHeading: true
+    }));
+
+    locations.forEach(location => {
+      new mapboxgl.Marker()
+        .setLngLat([location.Lat, location.Lng])
+        .setPopup(new mapboxgl.Popup().setHTML(`
+          <h3>${location.Name}</h3>
+          <p>${location.Url}</p>
+        `))
+        .addTo(map);
+    });
+
+  </script>
+</body>
+</html>

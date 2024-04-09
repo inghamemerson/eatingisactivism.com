@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .map-embed {
+    max-width: 100%;
+    max-height: 100%;
+    width: 1000px;
+    height: 650px;
+    margin: 0 auto;
+  }
+}
