@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/contrib/renders/multitemplate"
 	"github.com/joho/godotenv"
 	"github.com/inghamemerson/eatingisactivism.com/util"
 )
@@ -14,21 +15,55 @@ import (
 var locations []util.Location
 var mapboxToken string
 
+func renderError(c *gin.Context, status int, message string) {
+	c.HTML(status, "error.html.tmpl", gin.H{
+		"message": message,
+	})
+}
+
 func Router() *gin.Engine {
 	r := gin.Default()
+	baseTemplatePath := "./templates/layouts/base.html.tmpl"
+	templates := multitemplate.New()
+	templates.AddFromFiles("home.html.tmpl", baseTemplatePath, "./templates/pages/home.html.tmpl")
+	templates.AddFromFiles("error.html.tmpl", baseTemplatePath, "./templates/pages/error.html.tmpl")
+	templates.AddFromFiles("location-single.html.tmpl", baseTemplatePath, "./templates/pages/location-single.html.tmpl")
+
+	r.HTMLRender = templates
 
 	// r.StaticFS("/public", http.FS(public))
 	r.Static("/public", "./public")
 
-	r.LoadHTMLGlob("templates/*")
+	r.NoRoute(func(c *gin.Context) {
+		renderError(c, http.StatusNotFound, "Page not found")
+	})
 
 	r.GET("/", func(c *gin.Context) {
-		locations := util.GetLocations()
+		locations := locations
 		locationJSON, _ := json.Marshal(locations)
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+
+		c.HTML(http.StatusOK, "home.html.tmpl", gin.H{
 			"locations": locations,
 			"locationsJSON": string(locationJSON),
 			"mapboxToken": mapboxToken,
+		})
+	})
+
+	r.GET("/locations/:location", func(c *gin.Context) {
+		locationSlug := c.Param("location")
+
+		if (locationSlug == "") {
+			renderError(c, http.StatusNotFound, "Page not found")
+		}
+
+		location := util.GetLocationBySlug(locations, locationSlug)
+
+		if (location.Slug == "") {
+			renderError(c, http.StatusNotFound, "Location not found")
+		}
+
+		c.HTML(http.StatusOK, "location-single.html.tmpl", gin.H{
+			"location": location,
 		})
 	})
 
@@ -47,7 +82,7 @@ func main() {
 	port := os.Getenv("PORT")
 	mode := os.Getenv("GIN_MODE")
 	mapboxToken = os.Getenv("MAPBOX_TOKEN")
-
+	locations = util.GetLocations()
 
 	// poll for locations every 5 seconds
 	go func() {

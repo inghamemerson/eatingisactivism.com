@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -24,8 +25,8 @@ type Location struct {
 	Lat string
 	Lng string
 	Standard string
-	Badge string
-	Tag string
+	Badge []string
+	Tag []string
 }
 
 func GetLocations() []Location {
@@ -84,10 +85,21 @@ func GetLocations() []Location {
 			Lat: location[4],
 			Lng: location[5],
 			Standard: location[6],
-			Badge: location[7],
-			Tag: location[8],
+			Badge: strings.Split(location[7], ","),
+			Tag: strings.Split(location[8], ","),
 		})
 	}
 
 	return locations
+}
+
+// get location from locations by slug, or return an error
+func GetLocationBySlug(locations []Location, slug string) Location {
+	for _, location := range locations {
+		if location.Slug == slug {
+			return location
+		}
+	}
+
+	return Location{}
 }

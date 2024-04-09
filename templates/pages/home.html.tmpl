@@ -1,17 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta property="og:url" content="https://eatingisactivism.com/">
-  <meta property="og:type" content="website">
-  <title>Eating is Activism</title>
-  <link rel="stylesheet" href="/public/styles.css">
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
-</head>
-<body>
+{{ define "title" }}Eating is Activism{{ end }}
+{{ define "description"}}A map of food producers and purveyors that strive for regenerative practices.{{ end }}
+
+{{ define "head" }}
+    <meta property="og:url" content="https://eatingisactivism.com/">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+{{ end }}
+
+{{ define "content" }}
   <div class="container mx-auto">
     <h1 class="text-center font-medium text-3xl mb-10">Eating is Activism</h1>
 
@@ -21,11 +17,11 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
       {{ range .locations }}
-        <div class="bg-white p-5 rounded-lg shadow-md">
+        <a href="/locations/{{ .Slug }}" class="bg-white p-5 rounded-lg shadow-md block">
           <h3>{{ .Name }}</h3>
           <p>{{ .Description }}</p>
           <p>{{ .Url }}</p>
-        </div>
+        </a>
       {{ end }}
     </div>
   </div>
@@ -54,12 +50,11 @@
       new mapboxgl.Marker()
         .setLngLat([location.Lat, location.Lng])
         .setPopup(new mapboxgl.Popup().setHTML(`
-          <h3>${location.Name}</h3>
-          <p>${location.Url}</p>
-        `))
+            <h3>${location.Name}</h3>
+            <p>${location.Url}</p>
+          `))
         .addTo(map);
     });
 
   </script>
-</body>
-</html>
+{{ end }}

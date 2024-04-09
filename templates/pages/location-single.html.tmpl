@@ -1,0 +1,14 @@
+{{ define "title" }}{{ .location.Title }}{{ end }}
+{{ define "description"}}{{ .location.Description }}{{ end }}
+
+{{ define "head" }}
+<meta property="og:url" content="https://eatingisactivism.com/locations/{{ .location.Slug }}">
+{{ end }}
+
+{{ define "content" }}
+<div class="container mx-auto">
+  <h1 class="text-center font-medium text-3xl mb-10">{{ .location.Title }}</h1>
+  <p>{{ .location.Description }}</p>
+  <a href="{{ .location.Url }}" target="_blank" class="text-blue-500">{{ .location.Url }}</a>
+</div>
+{{ end }}
