@@ -8,23 +8,43 @@
 {{ end }}
 
 {{ define "content" }}
-  <div class="container mx-auto">
-    <h1 class="text-center font-medium text-3xl mb-10">Eating is Activism</h1>
+  <section class="container mx-auto map-embed mb-20">
+    <div id="map" class="w-full h-full"></div>
+  </section>
 
-    <div class="map-embed mb-10">
-      <div id="map" class="w-full h-full"></div>
-    </div>
+  <section class="container mb-20 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
+    {{ range .locations }}
+      <a href="/locations/{{ .Slug }}" class="bg-white p-5 rounded-lg shadow-md block">
+        <h3>{{ .Name }}</h3>
+        <p>{{ .Description }}</p>
+        <p>{{ .Url }}</p>
+      </a>
+    {{ end }}
+  </section>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
-      {{ range .locations }}
-        <a href="/locations/{{ .Slug }}" class="bg-white p-5 rounded-lg shadow-md block">
-          <h3>{{ .Name }}</h3>
-          <p>{{ .Description }}</p>
-          <p>{{ .Url }}</p>
-        </a>
-      {{ end }}
-    </div>
-  </div>
+  <section class="container max-w-5xl mx-auto mb-20">
+    <h2 class="text-3xl font-bold mb-10">What is Regenerative Organic Certified?</h2>
+    <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
+    <p>Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
+  </section>
+
+  <section class="container max-w-5xl mx-auto mb-20">
+    <h2 class="text-3xl font-bold mb-10">What is USDA Organic?</h2>
+    <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
+    <p>Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
+  </section>
+
+  <section class="container max-w-5xl mx-auto mb-20">
+    <h2 class="text-3xl font-bold mb-10">What is Humane?</h2>
+    <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
+    <p>Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
+  </section>
+
+  <section class="container max-w-5xl mx-auto mb-20">
+    <h2 class="text-3xl font-bold mb-10">What about Conventional?</h2>
+    <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
+    <p>Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
+  </section>
 
   <script>
     const locations = JSON.parse({{ .locationsJSON }});
