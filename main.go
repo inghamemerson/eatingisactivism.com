@@ -21,6 +21,12 @@ func renderError(c *gin.Context, status int, message string) {
 	})
 }
 
+// func Authenticated() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		key := c.Query("key")
+// 	}
+// }
+
 func Router() *gin.Engine {
 	r := gin.Default()
 	baseTemplatePath := "./templates/layouts/base.html.tmpl"

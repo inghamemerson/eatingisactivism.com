@@ -1,5 +1,5 @@
 # Dockerfile to run a simple golang application
-FROM golang:1.21.1-alpine3.17
+FROM golang:1.22.2-alpine3.18
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
