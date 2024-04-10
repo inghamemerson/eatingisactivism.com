@@ -8,7 +8,7 @@
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url('/fonts/avenir-next-regular.woff2') format('woff2');
+    src: url('/public/fonts/avenir-next-regular.woff2') format('woff2');
   }
 
   @font-face {
@@ -16,7 +16,7 @@
     font-style: normal;
     font-weight: 500;
     font-display: swap;
-    src: url('/fonts/avenir-next-medium.woff2') format('woff2');
+    src: url('/public/fonts/avenir-next-medium.woff2') format('woff2');
   }
 
   @font-face {
@@ -24,7 +24,7 @@
     font-style: normal;
     font-weight: 600;
     font-display: swap;
-    src: url('/fonts/avenir-next-demibold.woff2') format('woff2');
+    src: url('/public/fonts/avenir-next-demibold.woff2') format('woff2');
   }
 
   @font-face {
@@ -32,7 +32,7 @@
     font-style: normal;
     font-weight: 700;
     font-display: swap;
-    src: url('/fonts/avenir-next-bold.woff2') format('woff2');
+    src: url('/public/fonts/avenir-next-bold.woff2') format('woff2');
   }
 
   main {
