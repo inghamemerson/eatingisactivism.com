@@ -1,4 +1,4 @@
-{{ define "title" }}{{ .location.Title }}{{ end }}
+{{ define "title" }}{{ .location.Name }}{{ end }}
 {{ define "description"}}{{ .location.Description }}{{ end }}
 
 {{ define "head" }}
@@ -7,7 +7,7 @@
 
 {{ define "content" }}
 <div class="container mx-auto">
-  <h1 class="text-center font-medium text-3xl mb-10">{{ .location.Title }}</h1>
+  <h1 class="text-center font-medium text-3xl mb-10">{{ .location.Name }}</h1>
   <p>{{ .location.Description }}</p>
   <a href="{{ .location.Url }}" target="_blank" class="text-blue-500">{{ .location.Url }}</a>
 </div>

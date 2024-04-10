@@ -92,14 +92,3 @@ func GetLocations() []Location {
 
 	return locations
 }
-
-// get location from locations by slug, or return an error
-func GetLocationBySlug(locations []Location, slug string) Location {
-	for _, location := range locations {
-		if location.Slug == slug {
-			return location
-		}
-	}
-
-	return Location{}
-}

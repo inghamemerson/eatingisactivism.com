@@ -56,15 +56,17 @@ func Router() *gin.Engine {
 			renderError(c, http.StatusNotFound, "Page not found")
 		}
 
-		location := util.GetLocationBySlug(locations, locationSlug)
+		for _, location := range locations {
+			if location.Slug == locationSlug {
+				c.HTML(http.StatusOK, "location-single.html.tmpl", gin.H{
+					"location": location,
+				})
 
-		if (location.Slug == "") {
-			renderError(c, http.StatusNotFound, "Location not found")
+				return
+			}
 		}
 
-		c.HTML(http.StatusOK, "location-single.html.tmpl", gin.H{
-			"location": location,
-		})
+		renderError(c, http.StatusNotFound, "Page not found")
 	})
 
 	v1 := r.Group("/api/v1")
@@ -81,8 +83,14 @@ func main() {
 	godotenv.Load(".env")
 	port := os.Getenv("PORT")
 	mode := os.Getenv("GIN_MODE")
+	url := os.Getenv("URL")
+	key := os.Getenv("KEY")
 	mapboxToken = os.Getenv("MAPBOX_TOKEN")
 	locations = util.GetLocations()
+
+	if (url == "" || key == "") {
+		panic("URL or KEY not found in .env")
+	}
 
 	// poll for locations every 5 seconds
 	go func() {
