@@ -1,19 +1,30 @@
 package main
 
 import (
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/contrib/renders/multitemplate"
-	"github.com/joho/godotenv"
+	"github.com/gin-gonic/gin"
 	"github.com/inghamemerson/eatingisactivism.com/util"
+	"github.com/joho/godotenv"
 )
 
-var locations []util.Location
-var mapboxToken string
+var (
+	locations []util.Location
+	mapboxToken string
+	password string
+	passwordHash string
+	salt string
+)
+
+func hashValue(value string) string {
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(value + salt)))
+}
 
 func renderError(c *gin.Context, status int, message string) {
 	c.HTML(status, "error.html.tmpl", gin.H{
@@ -21,16 +32,49 @@ func renderError(c *gin.Context, status int, message string) {
 	})
 }
 
-// func Authenticated() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		key := c.Query("key")
-// 	}
-// }
+func isPasswordValid(token string) bool {
+	return token == passwordHash
+}
+
+func Authenticated() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.URL.Path == "/login" {
+			c.Next()
+			return
+		}
+
+		token, _ := c.Cookie("_token")
+
+		// if we don't have a token from the cookie, check the URL params for "_token"
+		if token == "" {
+			token = c.Query("_token")
+		}
+
+		if token == "" {
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
+		}
+
+		if !isPasswordValid(token) {
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
+		}
+
+		// since we have a valid token, set the cookie
+		c.SetCookie("_token", token, 3600, "/", "", false, true)
+
+		c.Next()
+	}
+}
 
 func Router() *gin.Engine {
 	r := gin.Default()
 	baseTemplatePath := "./templates/layouts/base.html.tmpl"
+	unauthedTemplatePath := "./templates/layouts/unauthed.html.tmpl"
 	templates := multitemplate.New()
+	templates.AddFromFiles("login.html.tmpl", unauthedTemplatePath, "./templates/pages/login.html.tmpl")
 	templates.AddFromFiles("home.html.tmpl", baseTemplatePath, "./templates/pages/home.html.tmpl")
 	templates.AddFromFiles("error.html.tmpl", baseTemplatePath, "./templates/pages/error.html.tmpl")
 	templates.AddFromFiles("location-single.html.tmpl", baseTemplatePath, "./templates/pages/location-single.html.tmpl")
@@ -39,6 +83,8 @@ func Router() *gin.Engine {
 
 	// r.StaticFS("/public", http.FS(public))
 	r.Static("/public", "./public")
+
+	r.Use(Authenticated())
 
 	r.NoRoute(func(c *gin.Context) {
 		renderError(c, http.StatusNotFound, "Page not found")
@@ -53,6 +99,22 @@ func Router() *gin.Engine {
 			"locationsJSON": string(locationJSON),
 			"mapboxToken": mapboxToken,
 		})
+	})
+
+	r.GET("/login", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "login.html.tmpl", gin.H{})
+	})
+
+	r.POST("/login", func(c *gin.Context) {
+		pass := c.PostForm("password")
+		passHash := hashValue(pass)
+
+		if isPasswordValid(passHash) {
+			c.SetCookie("_token", passHash, int(60 * 60 * 24), "/", "", false, true)
+			c.Redirect(http.StatusFound, "/")
+		} else {
+			c.Redirect(http.StatusFound, "/login")
+		}
 	})
 
 	r.GET("/locations/:location", func(c *gin.Context) {
@@ -91,12 +153,26 @@ func main() {
 	mode := os.Getenv("GIN_MODE")
 	url := os.Getenv("URL")
 	key := os.Getenv("KEY")
-	mapboxToken = os.Getenv("MAPBOX_TOKEN")
-	locations = util.GetLocations()
 
 	if (url == "" || key == "") {
 		panic("URL or KEY not found in .env")
 	}
+
+	mapboxToken = os.Getenv("MAPBOX_TOKEN")
+
+	if (mapboxToken == "") {
+		panic("MAPBOX_TOKEN not found in .env")
+	}
+
+	locations = util.GetLocations()
+	password = os.Getenv("PASSWORD")
+	salt = os.Getenv("SALT")
+
+	if (password == "" || salt == "") {
+		panic("PASSWORD or SALT not found in .env")
+	}
+
+	passwordHash = hashValue(password)
 
 	// poll for locations every 5 seconds
 	go func() {
