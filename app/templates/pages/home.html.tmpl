@@ -8,39 +8,39 @@
 {{ end }}
 
 {{ define "content" }}
-  <section class="container mx-auto map-embed mb-20">
-    <div id="map" class="w-full h-full"></div>
+  <div class="bg-[#efeddc]">
+    <section class="container max-w-xl mx-auto px-4 py-24">
+      <h1 class="text-center font-bold text-5xl md:text-7xl lg:text-9xl mb-10">Eat Good Food</h1>
+      <p class="max-w-prose mx-auto mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
+      <p class="max-w-prose mx-auto">Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
+    </section>
+  </div>
+  <section class="map-embed mb-20 flex flex-row relative">
+    <div id="mapFilters" class="h-full w-96 p-4 bg-white grow-0">
+      <p>Here are some filters</p>
+    </div>
+    <div id="map" class="h-full w-auto grow"></div>
   </section>
 
-  {{/*  <section class="container mb-20 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
-    {{ range .locations }}
-      <a href="/locations/{{ .Slug }}" class="bg-white p-5 rounded-lg shadow-md block">
-        <h3>{{ .Name }}</h3>
-        <p>{{ .Description }}</p>
-        <p>{{ .Url }}</p>
-      </a>
-    {{ end }}
-  </section>  */}}
-
-  <section class="container max-w-prose mx-auto mb-20">
+  <section class="container max-w-prose mx-auto mb-20 px-4">
     <h2 class="text-3xl text-center font-bold mb-10">What is Regenerative Organic Certified?</h2>
     <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
     <p>Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
   </section>
 
-  <section class="container max-w-prose mx-auto mb-20">
+  <section class="container max-w-prose mx-auto mb-20 px-4">
     <h2 class="text-3xl text-center font-bold mb-10">What is USDA Organic?</h2>
     <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
     <p>Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
   </section>
 
-  <section class="container max-w-prose mx-auto mb-20">
+  <section class="container max-w-prose mx-auto mb-20 px-4">
     <h2 class="text-3xl text-center font-bold mb-10">What is Humane?</h2>
     <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
     <p>Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
   </section>
 
-  <section class="container max-w-prose mx-auto mb-20">
+  <section class="container max-w-prose mx-auto mb-20 px-4">
     <h2 class="text-3xl text-center font-bold mb-10">What about Conventional?</h2>
     <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere iure nesciunt, ipsa, corporis nihil adipisci totam doloremque est, veniam natus beatae magni velit nostrum fuga dolor dolore ipsam quibusdam id.</p>
     <p>Et ut voluptate minim laborum duis adipisicing nisi et consequat adipisicing magna elit. Fugiat minim esse nisi pariatur ut. Ex ad esse exercitation sit do veniam eu. Lorem cillum eu eu nostrud nulla excepteur eu esse eu aute Lorem ipsum.</p>
@@ -55,7 +55,8 @@
       container: 'map',
       style: 'mapbox://styles/mapbox/outdoors-v12',
       center: [-98.5556199, 39.8097343],
-      zoom: 3
+      zoom: 2,
+      cooperativeGestures: true
     });
 
     map.addControl(new mapboxgl.GeolocateControl({

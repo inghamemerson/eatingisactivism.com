@@ -14,16 +14,14 @@
   {{ block "head" . }}{{ end }}
 </head>
 
-<body class="flex flex-col font-sans px-4">
-  <nav class="py-4 border-b border-black grow-0 shrink">
-    <a href="/">
-      <h1 class="text-center font-bold text-lg">Eating is Activism</h1>
-    </a>
+<body class="flex flex-col font-sans">
+  <nav class="py-4 border-b border-black grow-0 shrink px-4 text-center">
+    <a href="/" class="text-center font-bold text-lg">Eating is Activism</a>
   </nav>
   <main class="grow">
     {{ template "content" . }}
   </main>
-  <footer class="py-4 border-t bg-black grow-0 shrink">
+  <footer class="py-4 border-t bg-black grow-0 shrink px-4">
     <p class="text-center text-xs text-white font-semibold">&copy; 2024 Eating is Activism</p>
   </footer>
 </body>
