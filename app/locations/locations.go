@@ -36,6 +36,10 @@ var (
 	sheetsKey string
 )
 
+var ValidStandards []string = []string{"gold", "silver", "bronze"}
+var ValidBadges []string = []string{"roc", "usda_o", "hum"}
+var ValidTags []string = []string{"beef","pork","fish","produce","poultry","dairy","grains","shellfish","honey","wine","beer"}
+
 func init() {
 	godotenv.Load(".env")
 
@@ -116,6 +120,17 @@ func SheetLocations() []Location {
 			continue
 		}
 
+		// split the badges by comma and clean out any whitespace
+		badges := strings.Split(location[7], ",")
+		for i, badge := range badges {
+			badges[i] = strings.ToLower(strings.TrimSpace(badge))
+		}
+
+		tags := strings.Split(location[8], ",")
+		for i, tag := range tags {
+			tags[i] = strings.ToLower(strings.TrimSpace(tag))
+		}
+
 		locations = append(locations, Location{
 			Name: location[0],
 			Slug: location[1],
@@ -124,8 +139,8 @@ func SheetLocations() []Location {
 			Lat: location[4],
 			Lng: location[5],
 			Standard: location[6],
-			Badges: strings.Split(location[7], ","),
-			Tags: strings.Split(location[8], ","),
+			Badges: badges,
+			Tags: tags,
 		})
 	}
 

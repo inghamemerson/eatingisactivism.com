@@ -47,4 +47,12 @@
     height: 100vh;
     max-height: calc(980px - 61px);
   }
+
+  #map .mapboxgl-popup-content {
+    @apply p-2 md:p-4 lg:p-5 rounded-md;
+  }
+
+  #map .mapboxgl-popup-content h3 {
+    @apply font-sans font-semibold text-lg;
+  }
 }

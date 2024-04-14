@@ -71,9 +71,12 @@
       new mapboxgl.Marker()
         .setLngLat([location.Lat, location.Lng])
         .setPopup(new mapboxgl.Popup().setHTML(`
+          <div class="flex flex-col">
             <h3>${location.Name}</h3>
-            <p>${location.Url}</p>
-          `))
+            <p>${location.Description}</p>
+            <a href="${location.Url}" target="_blank">${location.Url}</a>
+          </div>
+        `))
         .addTo(map);
     });
 

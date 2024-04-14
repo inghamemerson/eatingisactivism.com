@@ -33,8 +33,10 @@ func init() {
 
 func renderError(c *gin.Context, status int, message string) {
 	c.HTML(status, "error.html.tmpl", gin.H{
+		"status": status,
 		"message": message,
 	})
+	c.Abort()
 }
 
 func Router() *gin.Engine {
@@ -63,6 +65,7 @@ func Router() *gin.Engine {
 
 	r.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html.tmpl", gin.H{})
+		return
 	})
 
 	r.POST("/login", func(c *gin.Context) {
@@ -75,12 +78,14 @@ func Router() *gin.Engine {
 		} else {
 			c.Redirect(http.StatusFound, "/login")
 		}
+		return
 	})
 
 	authorized := r.Group("/", auth.AuthHTML())
 	{
 		authorized.GET("/stats", func(c *gin.Context) {
 			c.JSON(http.StatusOK, stats.Report())
+			return
 		})
 
 		authorized.GET("/", func(c *gin.Context) {
@@ -92,12 +97,14 @@ func Router() *gin.Engine {
 				"locationsJSON": string(locationJSON),
 				"mapboxToken": mapboxToken,
 			})
+			return
 		})
 
 		authorized.GET("/locations", func(c *gin.Context) {
 			c.HTML(http.StatusOK, "locations.html.tmpl", gin.H{
 				"locations": locations.GetLocations(),
 			})
+			return
 		})
 
 		authorized.GET("/locations/:location", func(c *gin.Context) {
@@ -106,11 +113,13 @@ func Router() *gin.Engine {
 
 			if (locationSlug == "" || location.Slug == "") {
 				renderError(c, http.StatusNotFound, "Page not found")
+				return
 			}
 
 			c.HTML(http.StatusOK, "location-single.html.tmpl", gin.H{
 				"location": location,
 			})
+			return
 		})
 	}
 
@@ -147,6 +156,7 @@ func Router() *gin.Engine {
 			}
 
 			c.JSON(http.StatusOK, locs)
+			return
 		})
 	}
 

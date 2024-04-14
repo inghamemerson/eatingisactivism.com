@@ -1,9 +1,10 @@
-{{ define "title" }}404{{ end }}
-{{ define "description"}}Page not found.{{ end }}
+{{ define "title" }}{{ .status }} | Eating is Activism{{ end }}
+{{ define "description"}}{{ .message }}{{ end }}
+{{ define "mainClass" }}flex flex-col{{ end }}
 
 {{ define "content" }}
-  <div class="container mx-auto">
-    <h1 class="text-center font-medium text-3xl mb-10">404</h1>
-    <p class="text-center">Page not found.</p>
-  </div>
+  <section class="container mx-auto h-full flex flex-col justify-center grow">
+    <h1 class="text-center font-bold text-9xl mb-10">{{ .status }}</h1>
+    <p class="text-center">{{ .message }}</p>
+  </section>
 {{ end }}
