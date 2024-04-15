@@ -28,11 +28,27 @@ func init() {
 	if (mapboxToken == "") {
 		panic("MAPBOX_TOKEN not found in .env")
 	}
-
 }
 
-func renderError(c *gin.Context, status int, message string) {
+func staticCacheMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if (strings.HasPrefix(c.Request.URL.Path, "/public")) {
+			c.Header("Cache-Control", "public, max-age=31536000")
+		}
+		c.Next()
+	}
+}
+
+func renderHTMLError(c *gin.Context, status int, message string) {
 	c.HTML(status, "error.html.tmpl", gin.H{
+		"status": status,
+		"message": message,
+	})
+	c.Abort()
+}
+
+func renderJSONError(c *gin.Context, status int, message string) {
+	c.JSON(status, gin.H{
 		"status": status,
 		"message": message,
 	})
@@ -52,20 +68,30 @@ func Router() *gin.Engine {
 
 	r.HTMLRender = templates
 
-	r.Static("/public", "./public")
-
 	r.Use(brotli.Brotli(brotli.DefaultCompression))
 	r.Use(gin.Recovery())
 	r.Use(healthcheck.Default())
-	r.Use(stats.RequestStats())
 
 	r.NoRoute(func(c *gin.Context) {
-		renderError(c, http.StatusNotFound, "Page not found")
+		// of the request is to the /api path, return a JSON error
+		if strings.HasPrefix(c.Request.URL.Path, "/api") {
+			renderJSONError(c, http.StatusNotFound, "Page not found")
+			return
+		}
+
+		renderHTMLError(c, http.StatusNotFound, "Page not found")
 	})
+
+	// if GIN_MODE is release, we need to compress static assets and set cache headers
+	if gin.Mode() == gin.ReleaseMode {
+		r.Use(staticCacheMiddleware())
+
+	}
+
+	r.Static("/public", "./public")
 
 	r.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html.tmpl", gin.H{})
-		return
 	})
 
 	r.POST("/login", func(c *gin.Context) {
@@ -78,16 +104,10 @@ func Router() *gin.Engine {
 		} else {
 			c.Redirect(http.StatusFound, "/login")
 		}
-		return
 	})
 
 	authorized := r.Group("/", auth.AuthHTML())
 	{
-		authorized.GET("/stats", func(c *gin.Context) {
-			c.JSON(http.StatusOK, stats.Report())
-			return
-		})
-
 		authorized.GET("/", func(c *gin.Context) {
 			locations := locations.GetLocations()
 			locationJSON, _ := json.Marshal(locations)
@@ -97,14 +117,12 @@ func Router() *gin.Engine {
 				"locationsJSON": string(locationJSON),
 				"mapboxToken": mapboxToken,
 			})
-			return
 		})
 
 		authorized.GET("/locations", func(c *gin.Context) {
 			c.HTML(http.StatusOK, "locations.html.tmpl", gin.H{
 				"locations": locations.GetLocations(),
 			})
-			return
 		})
 
 		authorized.GET("/locations/:location", func(c *gin.Context) {
@@ -112,19 +130,24 @@ func Router() *gin.Engine {
 			location := locations.GetLocationBySlug(locationSlug)
 
 			if (locationSlug == "" || location.Slug == "") {
-				renderError(c, http.StatusNotFound, "Page not found")
+				renderHTMLError(c, http.StatusNotFound, "Page not found")
 				return
 			}
 
 			c.HTML(http.StatusOK, "location-single.html.tmpl", gin.H{
 				"location": location,
 			})
-			return
 		})
 	}
 
 	v1 := r.Group("/api/v1", auth.AuthJSON())
 	{
+		v1.Use(stats.RequestStats())
+
+		v1.GET("/stats", func(c *gin.Context) {
+			c.JSON(http.StatusOK, stats.Report())
+		})
+
 		v1.GET("/locations", func(c *gin.Context) {
 			badgesParam := c.Query("badges")
 			badges := []string{}
@@ -156,7 +179,6 @@ func Router() *gin.Engine {
 			}
 
 			c.JSON(http.StatusOK, locs)
-			return
 		})
 	}
 

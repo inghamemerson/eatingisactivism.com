@@ -3,14 +3,15 @@ module eatingisactivism
 go 1.22.2
 
 require (
+	github.com/RaMin0/gin-health-check v0.0.0-20180807004848-a677317b3f01
+	github.com/anargu/gin-brotli v0.0.0-20220116052358-12bf532d5267
 	github.com/gin-gonic/contrib v0.0.0-20221130124618-7e01895a63f2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1
+	github.com/semihalev/gin-stats v0.0.0-20180505163755-30fdcbbd3533
 )
 
 require (
-	github.com/RaMin0/gin-health-check v0.0.0-20180807004848-a677317b3f01 // indirect
-	github.com/anargu/gin-brotli v0.0.0-20220116052358-12bf532d5267 // indirect
 	github.com/andybalholm/brotli v1.0.1 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
@@ -28,7 +29,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/semihalev/gin-stats v0.0.0-20180505163755-30fdcbbd3533 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
