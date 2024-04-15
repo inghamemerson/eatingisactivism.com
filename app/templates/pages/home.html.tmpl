@@ -59,22 +59,32 @@
       cooperativeGestures: true
     });
 
-    map.addControl(new mapboxgl.GeolocateControl({
+    {{/*  map.addControl(new mapboxgl.GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true
       },
       trackUserLocation: true,
       showUserHeading: true
-    }));
+    }));  */}}
 
     locations.forEach(location => {
       new mapboxgl.Marker()
         .setLngLat([location.Lat, location.Lng])
         .setPopup(new mapboxgl.Popup().setHTML(`
-          <div class="flex flex-col">
-            <h3>${location.Name}</h3>
-            <p>${location.Description}</p>
-            <a href="${location.Url}" target="_blank">${location.Url}</a>
+          <div class="location-popup flex flex-col ${location.Standard}">
+            ${location.Image ? `<div class="location-popup-image" style="background-image: url(\'/public/images/${location.Slug}-popup.jpg\')"></div>` : ''}
+
+            <div class="location-popup-content">
+              <ul class="tags">
+                ${location.Tags.map(tag => `<li class="tag">${tag}</li>`).join('')}
+              </ul>
+              <ul class="badges">
+                ${location.Badges.map(badge => `<li class="badge">${badge}</li>`).join('')}
+              </ul>
+              <h3>${location.Name}</h3>
+              <p>${location.Description}</p>
+              <a class="outline-none button button-outline" href="/locations/${location.Slug}" target="_blank">Explore</a>
+            </div>
           </div>
         `))
         .addTo(map);

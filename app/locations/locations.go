@@ -28,6 +28,7 @@ type Location struct {
 	Standard string
 	Badges []string
 	Tags []string
+	Image bool
 }
 
 var (
@@ -123,7 +124,7 @@ func SheetLocations() []Location {
 		// split the badges by comma and clean out any whitespace
 		badges := strings.Split(location[7], ",")
 		locationBadges := []string{}
-		for i, badge := range badges {
+		for _, badge := range badges {
 			badge = strings.ToLower(strings.TrimSpace(badge))
 
 			if !string_in_array(badge, ValidBadges) {
@@ -135,7 +136,7 @@ func SheetLocations() []Location {
 
 		tags := strings.Split(location[8], ",")
 		locationTags := []string{}
-		for i, tag := range tags {
+		for _, tag := range tags {
 			tag = strings.ToLower(strings.TrimSpace(tag))
 
 			if !string_in_array(tag, ValidTags) {
@@ -151,6 +152,11 @@ func SheetLocations() []Location {
 			locationStandard = standard
 		}
 
+		image := false
+		if location[9] == "TRUE" {
+			image = true
+		}
+
 		locations = append(locations, Location{
 			Name: location[0],
 			Slug: location[1],
@@ -161,6 +167,7 @@ func SheetLocations() []Location {
 			Standard: locationStandard,
 			Badges: badges,
 			Tags: tags,
+			Image: image,
 		})
 	}
 
@@ -221,5 +228,3 @@ func array_contains(arr []string, arr2 []string) bool {
 
 	return false
 }
-
-
