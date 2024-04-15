@@ -122,13 +122,33 @@ func SheetLocations() []Location {
 
 		// split the badges by comma and clean out any whitespace
 		badges := strings.Split(location[7], ",")
+		locationBadges := []string{}
 		for i, badge := range badges {
-			badges[i] = strings.ToLower(strings.TrimSpace(badge))
+			badge = strings.ToLower(strings.TrimSpace(badge))
+
+			if !string_in_array(badge, ValidBadges) {
+				continue
+			}
+
+			locationBadges = append(locationBadges, badge)
 		}
 
 		tags := strings.Split(location[8], ",")
+		locationTags := []string{}
 		for i, tag := range tags {
-			tags[i] = strings.ToLower(strings.TrimSpace(tag))
+			tag = strings.ToLower(strings.TrimSpace(tag))
+
+			if !string_in_array(tag, ValidTags) {
+				continue
+			}
+
+			locationTags = append(locationTags, tag)
+		}
+
+		locationStandard := ""
+		standard := strings.ToLower(strings.TrimSpace(location[6]))
+		if string_in_array(standard, ValidStandards) {
+			locationStandard = standard
 		}
 
 		locations = append(locations, Location{
@@ -138,7 +158,7 @@ func SheetLocations() []Location {
 			Description: location[3],
 			Lat: location[4],
 			Lng: location[5],
-			Standard: location[6],
+			Standard: locationStandard,
 			Badges: badges,
 			Tags: tags,
 		})
