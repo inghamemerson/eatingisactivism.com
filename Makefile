@@ -1,10 +1,18 @@
-watch-styles:
+watch-css:
 	@echo "Watching styles..."
 	npx postcss --no-map ./src/input.css -o ./public/styles.css --watch --verbose
 
-build-styles:
+build-css:
 	@echo "Building styles..."
 	npx postcss ./src/input.css -o ./public/styles.css --verbose --map
+
+watch-js:
+	@echo "Watching scripts..."
+	bun build ./src/main.js --outdir ./public --watch
+
+build-js:
+	@echo "Building scripts..."
+	bun build ./src/main.js --outdir ./public --minify-whitespace --minify-syntax
 
 build:
 	@echo "Building app..."

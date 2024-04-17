@@ -26,3 +26,6 @@ node_modules/
 tmp/
 
 TODO.md
+
+/public/styles.css
+/public/main.js
