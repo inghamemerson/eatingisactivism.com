@@ -1,10 +1,14 @@
 const eia = (function() {
   const LOADED_SCRIPTS = new Set();
-  const LOADED_STYLES = new Set
+  const LOADED_STYLES = new Set();
+  const markers = new Map();
   let locations = null;
   let mapboxToken = null;
-  let Map = null;
+  let Mapbox = null;
   let debugMode = false;
+  let filterStandards = new Set();
+  let filterBadges = new Set();
+  let filterTags = new Set();
 
   function setLocations(locs) {
     locations = locs;
@@ -12,6 +16,21 @@ const eia = (function() {
 
   function setMapboxToken(token) {
     mapboxToken = token;
+  }
+
+  function filterLocations() {
+    locations.forEach(location => {
+      const marker = markers.get(location.Slug);
+      const isVisible = filterStandards.size === 0 || filterStandards.has(location.Standard);
+      const hasBadges = filterBadges.size === 0 || location.Badges.some(badge => filterBadges.has(badge));
+      const hasTags = filterTags.size === 0 || location.Tags.some(tag => filterTags.has(tag));
+
+      if (isVisible && hasBadges && hasTags) {
+        marker.addTo(Mapbox);
+      } else {
+        marker.remove();
+      }
+    });
   }
 
   function waitForLibrary(lib, callback, timeout) {
@@ -100,7 +119,7 @@ const eia = (function() {
 
   function addMapLocations() {
     locations.forEach(location => {
-      new mapboxgl.Marker()
+      const marker = new mapboxgl.Marker()
         .setLngLat([location.Lat, location.Lng])
         .setPopup(new mapboxgl.Popup().setHTML(`
           <div class="location-popup flex flex-col ${location.Standard}">
@@ -119,14 +138,17 @@ const eia = (function() {
             </div>
           </div>
         `))
-        .addTo(Map);
+
+      markers.set(location.Slug, marker);
     });
+
+    filterLocations();
   }
 
   function renderHomeMap() {
     mapboxgl.accessToken = mapboxToken;
 
-    Map = new mapboxgl.Map({
+    Mapbox = new mapboxgl.Map({
       attributionControl: false,
       compact: true,
       container: "map",
@@ -138,8 +160,63 @@ const eia = (function() {
       cooperativeGestures: true,
     });
 
-    Map.on("load", () => {
+    Mapbox.on("load", () => {
       addMapLocations();
+      initFilterListeners();
+    });
+  }
+
+  function initFilterListeners() {
+    const standardFilters = document.querySelectorAll("#filter-standards .checkbox input");
+    const badgeFilters = document.querySelectorAll("#filter-badges .checkbox input");
+    const tagFilters = document.querySelectorAll("#filter-tags .checkbox input");
+
+    standardFilters.forEach(filter => {
+      filterStandards.add(filter.value);
+      filter.addEventListener("change", function() {
+        const standard = this.value;
+        const isChecked = this.checked;
+
+        if (isChecked) {
+          filterStandards.add(standard);
+        } else {
+          filterStandards.delete(standard);
+        }
+
+        filterLocations();
+      });
+    });
+
+    badgeFilters.forEach(filter => {
+      filterBadges.add(filter.value);
+      filter.addEventListener("change", function() {
+        const badge = this.value;
+        const isChecked = this.checked;
+
+        if (isChecked) {
+          filterBadges.add(badge);
+        } else {
+          filterBadges.delete(badge);
+        }
+
+        filterLocations();
+      });
+    });
+
+    tagFilters.forEach(filter => {
+      filterTags.add(filter.value);
+      filter.addEventListener("change", function() {
+        const tag = this.value;
+        const isChecked = this.checked;
+
+        if (isChecked) {
+          filterTags.add(tag);
+        } else {
+          filterTags.delete(tag);
+        }
+
+        filterLocations();
+      });
     });
   }
 

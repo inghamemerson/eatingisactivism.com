@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"fmt"
 	"strings"
 
 	"eatingisactivism/app/auth"
@@ -66,23 +65,6 @@ func LoadTemplates() multitemplate.Renderer {
 	r.AddFromFiles("error.html.tmpl", baseTemplatePath, "./app/templates/pages/error.html.tmpl")
 	r.AddFromFiles("location-single.html.tmpl", baseTemplatePath, "./app/templates/pages/location-single.html.tmpl")
 	r.AddFromFiles("locations.html.tmpl", baseTemplatePath, "./app/templates/pages/locations.html.tmpl")
-
-	// add the partials by looping through all .html.tmpl files in the partials directory
-	partialsDir := "./app/templates/partials/"
-	partials, err := os.ReadDir(partialsDir)
-
-	if err != nil {
-		panic(err)
-	}
-
-	for _, partial := range partials {
-		if strings.HasSuffix(partial.Name(), ".html.tmpl") {
-			name := "partials/" + strings.TrimSuffix(partial.Name(), ".html.tmpl")
-			fmt.Println("Adding partial: " + name)
-			fmt.Println(partialsDir + partial.Name())
-			r.AddFromFiles(name, partialsDir + partial.Name())
-		}
-	}
 
 	return r
 }

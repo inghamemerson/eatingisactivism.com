@@ -7,4 +7,12 @@ module.exports = {
     },
   },
   plugins: [],
+  safelist: [
+    {
+      pattern: /^location-popup/,
+    },
+    {
+      pattern: /^button/,
+    },
+    "tag", "badge", "tags", "badges"],
 };
