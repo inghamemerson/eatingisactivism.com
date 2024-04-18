@@ -37,9 +37,97 @@ var (
 	sheetsKey string
 )
 
-var ValidStandards []string = []string{"gold", "silver", "bronze"}
-var ValidBadges []string = []string{"roc", "usda_o", "hum"}
-var ValidTags []string = []string{"beef","pork","fish","produce","poultry","dairy","grains","shellfish","honey","wine","beer"}
+type selectItem struct {
+	Label string
+	Value string
+}
+
+var LocationStandards []selectItem = []selectItem{
+	{
+		Label: "Gold",
+		Value: "gold",
+	},
+	{
+		Label: "Silver",
+		Value: "silver",
+	},
+	{
+		Label: "Bronze",
+		Value: "bronze",
+	},
+}
+
+var ValidStandards []string = map_values(LocationStandards, "Value")
+
+var LocationBadges []selectItem = []selectItem{
+	{
+		Label: "Regenerative Organic Certified",
+		Value: "roc",
+	},
+	{
+		Label: "USDA Organic",
+		Value: "usda_o",
+	},
+	{
+		Label: "Certified Humane",
+		Value: "hum",
+	},
+	{
+		Label: "Patagonia Provisions",
+		Value: "patagonia",
+	},
+}
+
+var ValidBadges []string = map_values(LocationBadges, "Value")
+
+var LocationTags []selectItem = []selectItem{
+	{
+		Label: "Beef",
+		Value: "beef",
+	},
+	{
+		Label: "Pork",
+		Value: "pork",
+	},
+	{
+		Label: "Fish",
+		Value: "fish",
+	},
+	{
+		Label: "Produce",
+		Value: "produce",
+	},
+	{
+		Label: "Poultry",
+		Value: "poultry",
+	},
+	{
+		Label: "Dairy",
+		Value: "dairy",
+	},
+	{
+		Label: "Grains",
+		Value: "grains",
+	},
+	{
+		Label: "Shellfish",
+		Value: "shellfish",
+	},
+	{
+		Label: "Honey",
+		Value: "honey",
+	},
+	{
+		Label: "Wine",
+		Value: "wine",
+	},
+	{
+		Label: "Beer",
+		Value: "beer",
+	},
+}
+
+var ValidTags []string = map_values(LocationTags, "Value")
 
 func init() {
 	godotenv.Load(".env")
@@ -227,4 +315,18 @@ func array_contains(arr []string, arr2 []string) bool {
 	}
 
 	return false
+}
+
+func map_values(arr []selectItem, key string) []string {
+	values := []string{}
+
+	for _, v := range arr {
+		if key == "Label" {
+			values = append(values, v.Label)
+		} else if key == "Value" {
+			values = append(values, v.Value)
+		}
+	}
+
+	return values
 }

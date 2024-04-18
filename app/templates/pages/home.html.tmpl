@@ -17,6 +17,76 @@
   <section class="map-embed mb-20 flex flex-row relative">
     <div id="mapFilters" class="h-full w-96 p-4 bg-white grow-0">
       <p>Here are some filters</p>
+      <form>
+        <div>
+          <p>Badges</p>
+          {{ range .standards }}
+            {{ template "partials/checkbox" . }}
+          {{ end }}
+        </div>
+        <div>
+          <p>Standards</p>
+          <div>
+            <label for="roc" class="control checkbox">
+              <input type="checkbox" id="roc" name="roc" value="roc">
+              <span class="control-indicator"></span>
+              Regenerative Organic Certified
+            </label>
+          </div>
+          <div>
+            <label for="hum" class="control checkbox">
+              <input type="checkbox" id="hum" name="hum" value="hum">
+              <span class="control-indicator"></span>
+              Humane
+            </label>
+          </div>
+          <div>
+            <label for="usda_o" class="control checkbox">
+              <input type="checkbox" id="usda_o" name="usda_o" value="usda_o">
+              <span class="control-indicator"></span>
+              USDA Organic
+            </label>
+          </div>
+          <div>
+            <label for="patagonia" class="control checkbox">
+              <input type="checkbox" id="patagonia" name="patagonia" value="patagonia">
+              <span class="control-indicator"></span>
+              Patagonia Provisions
+            </label>
+          </div>
+        </div>
+        <div>
+          <p>Tags</p>
+          <div>
+            <label for="roc" class="control checkbox">
+              <input type="checkbox" id="roc" name="roc" value="roc">
+              <span class="control-indicator"></span>
+              Regenerative Organic Certified
+            </label>
+          </div>
+          <div>
+            <label for="hum" class="control checkbox">
+              <input type="checkbox" id="hum" name="hum" value="hum">
+              <span class="control-indicator"></span>
+              Humane
+            </label>
+          </div>
+          <div>
+            <label for="usda_o" class="control checkbox">
+              <input type="checkbox" id="usda_o" name="usda_o" value="usda_o">
+              <span class="control-indicator"></span>
+              USDA Organic
+            </label>
+          </div>
+          <div>
+            <label for="patagonia" class="control checkbox">
+              <input type="checkbox" id="patagonia" name="patagonia" value="patagonia">
+              <span class="control-indicator"></span>
+              Patagonia Provisions
+            </label>
+          </div>
+        </div>
+      </form>
     </div>
     <div id="map" class="h-full w-auto grow"></div>
   </section>

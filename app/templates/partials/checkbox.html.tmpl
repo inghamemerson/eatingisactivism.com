@@ -1,0 +1,9 @@
+{{ define "partials/checkbox" }}
+  <div>
+    <label for="{{ .value }}" class="control checkbox">
+      <input type="checkbox" id="{{ .value }}" name="{{ .value }}" value="{{ .value }}">
+      <span class="control-indicator"></span>
+      {{ .label }}
+    </label>
+  </div>
+{{ end }}

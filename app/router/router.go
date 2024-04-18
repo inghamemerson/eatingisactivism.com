@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"fmt"
 	"strings"
 
 	"eatingisactivism/app/auth"
@@ -11,7 +12,7 @@ import (
 
 	healthcheck "github.com/RaMin0/gin-health-check"
 	brotli "github.com/anargu/gin-brotli"
-	"github.com/gin-gonic/contrib/renders/multitemplate"
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/semihalev/gin-stats"
@@ -55,18 +56,41 @@ func renderJSONError(c *gin.Context, status int, message string) {
 	c.Abort()
 }
 
-func Router() *gin.Engine {
-	r := gin.Default()
+func LoadTemplates() multitemplate.Renderer {
+	r := multitemplate.NewRenderer()
 	baseTemplatePath := "./app/templates/layouts/base.html.tmpl"
 	unauthedTemplatePath := "./app/templates/layouts/unauthed.html.tmpl"
-	templates := multitemplate.New()
-	templates.AddFromFiles("login.html.tmpl", unauthedTemplatePath, "./app/templates/pages/login.html.tmpl")
-	templates.AddFromFiles("home.html.tmpl", baseTemplatePath, "./app/templates/pages/home.html.tmpl")
-	templates.AddFromFiles("error.html.tmpl", baseTemplatePath, "./app/templates/pages/error.html.tmpl")
-	templates.AddFromFiles("location-single.html.tmpl", baseTemplatePath, "./app/templates/pages/location-single.html.tmpl")
-	templates.AddFromFiles("locations.html.tmpl", baseTemplatePath, "./app/templates/pages/locations.html.tmpl")
 
-	r.HTMLRender = templates
+	r.AddFromFiles("login.html.tmpl", unauthedTemplatePath, "./app/templates/pages/login.html.tmpl")
+	r.AddFromFiles("home.html.tmpl", baseTemplatePath, "./app/templates/pages/home.html.tmpl")
+	r.AddFromFiles("error.html.tmpl", baseTemplatePath, "./app/templates/pages/error.html.tmpl")
+	r.AddFromFiles("location-single.html.tmpl", baseTemplatePath, "./app/templates/pages/location-single.html.tmpl")
+	r.AddFromFiles("locations.html.tmpl", baseTemplatePath, "./app/templates/pages/locations.html.tmpl")
+
+	// add the partials by looping through all .html.tmpl files in the partials directory
+	partialsDir := "./app/templates/partials/"
+	partials, err := os.ReadDir(partialsDir)
+
+	if err != nil {
+		panic(err)
+	}
+
+	for _, partial := range partials {
+		if strings.HasSuffix(partial.Name(), ".html.tmpl") {
+			name := "partials/" + strings.TrimSuffix(partial.Name(), ".html.tmpl")
+			fmt.Println("Adding partial: " + name)
+			fmt.Println(partialsDir + partial.Name())
+			r.AddFromFiles(name, partialsDir + partial.Name())
+		}
+	}
+
+	return r
+}
+
+func Router() *gin.Engine {
+	r := gin.Default()
+
+	r.HTMLRender = LoadTemplates()
 
 	r.Use(brotli.Brotli(brotli.DefaultCompression))
 	r.Use(gin.Recovery())
@@ -85,7 +109,6 @@ func Router() *gin.Engine {
 	// if GIN_MODE is release, we need to compress static assets and set cache headers
 	if gin.Mode() == gin.ReleaseMode {
 		r.Use(staticCacheMiddleware())
-
 	}
 
 	r.Static("/public", "./public")
@@ -109,11 +132,14 @@ func Router() *gin.Engine {
 	authorized := r.Group("/", auth.AuthHTML())
 	{
 		authorized.GET("/", func(c *gin.Context) {
-			locations := locations.GetLocations()
-			locationJSON, _ := json.Marshal(locations)
+			locs := locations.GetLocations()
+			locationJSON, _ := json.Marshal(locs)
 
 			c.HTML(http.StatusOK, "home.html.tmpl", gin.H{
-				"locations": locations,
+				"locations": locs,
+				"standards": locations.LocationStandards,
+				"badges": locations.LocationBadges,
+				"tags": locations.LocationTags,
 				"locationsJSON": string(locationJSON),
 				"mapboxToken": mapboxToken,
 			})
