@@ -26,7 +26,6 @@ type Location struct {
 	Lat string
 	Lng string
 	Standard string
-	Badges []string
 	Tags []string
 	Image bool
 }
@@ -58,27 +57,6 @@ var LocationStandards []selectItem = []selectItem{
 }
 
 var ValidStandards []string = map_values(LocationStandards, "Value")
-
-var LocationBadges []selectItem = []selectItem{
-	{
-		Label: "Regenerative Organic Certified",
-		Value: "roc",
-	},
-	{
-		Label: "USDA Organic",
-		Value: "usda_o",
-	},
-	{
-		Label: "Certified Humane",
-		Value: "hum",
-	},
-	{
-		Label: "Patagonia Provisions",
-		Value: "patagonia",
-	},
-}
-
-var ValidBadges []string = map_values(LocationBadges, "Value")
 
 var LocationTags []selectItem = []selectItem{
 	{
@@ -124,6 +102,10 @@ var LocationTags []selectItem = []selectItem{
 	{
 		Label: "Beer",
 		Value: "beer",
+	},
+	{
+		Label: "Patagonia Provisions",
+		Value: "patagonia",
 	},
 }
 
@@ -205,24 +187,11 @@ func SheetLocations() []Location {
 	// the response body "values" is a JSON array of Locations that we need to parse
 	for _, location := range response.Values {
 		// ensure the location has all the necessary fields
-		if len(location) < 9 {
+		if len(location) != 9 {
 			continue
 		}
 
-		// split the badges by comma and clean out any whitespace
-		badges := strings.Split(location[7], ",")
-		locationBadges := []string{}
-		for _, badge := range badges {
-			badge = strings.ToLower(strings.TrimSpace(badge))
-
-			if !string_in_array(badge, ValidBadges) {
-				continue
-			}
-
-			locationBadges = append(locationBadges, badge)
-		}
-
-		tags := strings.Split(location[8], ",")
+		tags := strings.Split(location[7], ",")
 		locationTags := []string{}
 		for _, tag := range tags {
 			tag = strings.ToLower(strings.TrimSpace(tag))
@@ -241,7 +210,7 @@ func SheetLocations() []Location {
 		}
 
 		image := false
-		if location[9] == "TRUE" {
+		if location[8] == "TRUE" {
 			image = true
 		}
 
@@ -253,8 +222,7 @@ func SheetLocations() []Location {
 			Lat: location[4],
 			Lng: location[5],
 			Standard: locationStandard,
-			Badges: badges,
-			Tags: tags,
+			Tags: locationTags,
 			Image: image,
 		})
 	}
@@ -272,16 +240,12 @@ func GetLocationBySlug(slug string) Location {
 	return Location{}
 }
 
-// filter function that return locations based on Standards, Badges, and Tags
-func FilterLocations(standards []string, badges []string, tags []string) []Location {
+// filter function that return locations based on Standards, and Tags
+func FilterLocations(standards []string, tags []string) []Location {
 	locations := []Location{}
 
 	for _, location := range allLocations {
 		if len(standards) > 0 && !string_in_array(location.Standard, standards) {
-			continue
-		}
-
-		if len(badges) > 0 && !array_contains(location.Badges, badges) {
 			continue
 		}
 

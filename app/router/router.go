@@ -120,7 +120,6 @@ func Router() *gin.Engine {
 			c.HTML(http.StatusOK, "home.html.tmpl", gin.H{
 				"locations": locs,
 				"standards": locations.LocationStandards,
-				"badges": locations.LocationBadges,
 				"tags": locations.LocationTags,
 				"locationsJSON": string(locationJSON),
 				"mapboxToken": mapboxToken,
@@ -157,18 +156,11 @@ func Router() *gin.Engine {
 		})
 
 		v1.GET("/locations", func(c *gin.Context) {
-			badgesParam := c.Query("badges")
-			badges := []string{}
-
 			tagsParam := c.Query("tags")
 			tags := []string{}
 
 			standardsParam := c.Query("standards")
 			standards := []string{}
-
-			if (badgesParam != "") {
-				badges = strings.Split(badgesParam, ",")
-			}
 
 			if (tagsParam != "") {
 				tags = strings.Split(tagsParam, ",")
@@ -180,8 +172,8 @@ func Router() *gin.Engine {
 
 			var locs []locations.Location = []locations.Location{}
 
-			if (len(badges) != 0 || len(tags) != 0 || len(standards) != 0) {
-				locs = locations.FilterLocations(standards, badges, tags)
+			if (len(tags) != 0 || len(standards) != 0) {
+				locs = locations.FilterLocations(standards, tags)
 			} else {
 				locs = locations.GetLocations()
 			}

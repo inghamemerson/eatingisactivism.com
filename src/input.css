@@ -55,15 +55,50 @@
   }
 
   #map .mapboxgl-popup-content {
-    @apply p-0 rounded-md;
+    @apply p-0 rounded-none bg-transparent;
+  }
+
+  #map .mapboxgl-popup-content .mapboxgl-popup-close-button {
+    font-size: 30px;
+    padding: 5px 6px;
+    top: 10px;
+    right: 6px;
+  }
+
+  #map .location-popup {
+    @apply p-4 md:p-7 rounded-md border-t-8 bg-white;
+  }
+
+  #map .location-popup.patagonia {
+    @apply border-pg-blue;
+  }
+
+  #map .location-popup.gold {
+    @apply border-yellow-400;
+  }
+
+  #map .location-popup.silver {
+    @apply border-slate-400;
+  }
+
+  #map .location-popup.bronze {
+    @apply border-yellow-600;
   }
 
   #map .location-popup {
     @apply p-4 md:p-7;
   }
 
+  #map .location-popup .tags {
+    @apply flex flex-row gap-1 mb-2;
+  }
+
   #map .location-popup h3 {
     @apply font-sans font-semibold text-lg;
+  }
+
+  #map .location-popup p {
+    @apply mb-6;
   }
 
   .button {

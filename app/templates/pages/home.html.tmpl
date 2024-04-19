@@ -15,45 +15,37 @@
     </section>
   </div>
   <section class="map-embed mb-20 flex flex-row relative">
-    <div id="mapFilters" class="h-full w-96 p-4 bg-white grow-0">
-      <form>
-        <div id="filter-standards" class="mb-10">
+    <div id="mapFilters" class="h-full w-96 p-8 bg-white grow-0">
+      <fieldset class="flex flex-col gap-10">
+        <div id="filter-standards">
           <p class="font-semibold text-lg mb-4">Standards</p>
           {{ range .standards }}
-            <div>
-              <label for="{{ .Value }}" class="control checkbox">
-                <input type="checkbox" id="{{ .Value }}" name="{{ .Value }}" value="{{ .Value }}" checked />
-                <span class="control-indicator"></span>
-                {{ .Label }}
-              </label>
+            <div class="relative flex items-start checkbox">
+              <div class="flex h-6 items-center">
+                <input id="{{ .Value }}" aria-describedby="{{ .Value }}-description" name="{{ .Value }}" value="{{ .Value }}" type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked>
+              </div>
+              <div class="ml-3 text-sm leading-6">
+                <label for="{{ .Value }}" class="font-medium text-gray-900">{{ .Label }}</label>
+              </div>
             </div>
-          {{ end }}
-        </div>
-        <div id="filter-badges" class="mb-10">
-          <p class="font-semibold text-lg mb-4">Badges</p>
-          {{ range .badges }}
-          <div>
-            <label for="{{ .Value }}" class="control checkbox">
-              <input type="checkbox" id="{{ .Value }}" name="{{ .Value }}" value="{{ .Value }}" checked />
-              <span class="control-indicator"></span>
-              {{ .Label }}
-            </label>
-          </div>
           {{ end }}
         </div>
         <div id="filter-tags">
           <p class="font-semibold text-lg mb-4">Tags</p>
           {{ range .tags }}
-          <div>
-            <label for="{{ .Value }}" class="control checkbox">
-              <input type="checkbox" id="{{ .Value }}" name="{{ .Value }}" value="{{ .Value }}" checked />
-              <span class="control-indicator"></span>
-              {{ .Label }}
-            </label>
-          </div>
+            <div class="relative flex items-start checkbox">
+              <div class="flex h-6 items-center">
+                <input id="{{ .Value }}" aria-describedby="{{ .Value }}-description" name="{{ .Value }}" value="{{ .Value }}" type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked>
+              </div>
+              <div class="ml-3 text-sm leading-6">
+                <label for="{{ .Value }}" class="font-medium text-gray-900">{{ .Label }}</label>
+              </div>
+            </div>
           {{ end }}
         </div>
-      </form>
+      </fieldset>
     </div>
     <div id="map" class="h-full w-auto grow"></div>
   </section>
