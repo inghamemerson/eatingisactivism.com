@@ -31,5 +31,6 @@ module.exports = {
     "silver",
     "bronze",
     "patagonia",
+    "marker",
   ],
 };

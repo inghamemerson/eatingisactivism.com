@@ -118,8 +118,8 @@ const eia = (function() {
   function addMapLocations() {
     locations.forEach(location => {
       const el = document.createElement("div");
-      el.className = "marker";
       const isPatagonia = location.Tags.includes('patagonia') ? 'patagonia' : '';
+      el.className = `marker ${ location.Standard } ${ isPatagonia }`;
       const marker = new mapboxgl.Marker(el)
         .setLngLat([location.Lat, location.Lng])
         .setPopup(
