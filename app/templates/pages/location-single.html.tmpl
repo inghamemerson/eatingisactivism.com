@@ -3,12 +3,28 @@
 
 {{ define "head" }}
 <meta property="og:url" content="https://eatingisactivism.com/locations/{{ .location.Slug }}">
+<script src="/public/util.js"></script>
 {{ end }}
 
+{{ define "mainClass" }}bg-pg-tan{{ end }}
+
 {{ define "content" }}
-<div class="container mx-auto">
-  <h1 class="text-center font-medium text-3xl mb-10">{{ .location.Name }}</h1>
-  <p>{{ .location.Description }}</p>
-  <a href="{{ .location.Url }}" target="_blank" class="text-blue-500">{{ .location.Url }}</a>
-</div>
+<section class="container max-w-xl mx-auto px-4 ">
+  <article class="pt-24 pb-4 px-4 border-8 border-black rounded-md mt-10 mb-20 sm:mt-20 lg:mt-24 bg-white location-single">
+    <h1 class="text-center font-semibold text-3xl mb-10">{{ .location.Name }}</h1>
+    <div id="tags" class="tags"></div>
+    <p class="mb-10">{{ .location.Description }}</p>
+    <a href="{{ .location.Url }}" target="_blank" class="button button-outline">Visit Site</a>
+  </article>
+</section>
+<script>
+  const tags = {{ .location.Tags }};
+  const tagsEl = document.getElementById('tags');
+  tags.forEach(tag => {
+    const tagEl = document.createElement('li');
+    tagEl.classList.add('tag');
+    tagEl.innerHTML = util.renderTagIcon(tag);
+    tagsEl.appendChild(tagEl);
+  });
+</script>
 {{ end }}

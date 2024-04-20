@@ -7,6 +7,7 @@ module.exports = {
         "pg-purple": "#472987",
         "pg-blue": "#016BB7",
         "pg-orange": "#FF7B34",
+        "pg-tan": "#FFF7E7",
       },
     },
     fontFamily: {

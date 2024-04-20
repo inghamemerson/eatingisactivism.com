@@ -155,6 +155,7 @@ func SheetLocations() []Location {
 
 	if err != nil {
 		fmt.Println("Error: ", err)
+		return locations
 	}
 
 	// if we do not have a response, return empty locations
