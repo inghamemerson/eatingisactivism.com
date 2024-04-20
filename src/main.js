@@ -179,6 +179,9 @@ const eia = (function() {
   function initFilterToggle() {
     const filterToggle = document.getElementById("filterToggle");
     const filterPanel = document.getElementById("mapFilters");
+    let mapPadding = {
+      left: 0
+    };
 
     if (!filterToggle || !filterPanel) {
       return;
@@ -186,6 +189,19 @@ const eia = (function() {
 
     filterToggle.addEventListener("click", () => {
       filterPanel.classList.toggle("show");
+
+      if (filterPanel.classList.contains("show")) {
+        mapPadding.left = 300;
+      } else {
+        mapPadding.left = 0;
+      }
+
+      console.log("Map padding:", mapPadding)
+
+      Mapbox.easeTo({
+        padding: mapPadding,
+        duration: 240,
+      });
     });
   }
 
