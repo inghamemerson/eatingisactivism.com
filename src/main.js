@@ -172,6 +172,20 @@ const eia = (function() {
     Mapbox.on("load", () => {
       addMapLocations();
       initFilterListeners();
+      initFilterToggle();
+    });
+  }
+
+  function initFilterToggle() {
+    const filterToggle = document.getElementById("filterToggle");
+    const filterPanel = document.getElementById("mapFilters");
+
+    if (!filterToggle || !filterPanel) {
+      return;
+    }
+
+    filterToggle.addEventListener("click", () => {
+      filterPanel.classList.toggle("show");
     });
   }
 
