@@ -51,7 +51,8 @@
 
   #map .mapboxgl-popup {
     width: 100%;
-    max-width: 480px!important;
+    width: 480px!important;
+    max-width: calc(100vw - 32px)!important;
   }
 
   #map .mapboxgl-popup-content {
