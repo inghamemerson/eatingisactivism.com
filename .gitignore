@@ -30,3 +30,9 @@ TODO.md
 # /public/styles.css
 # /public/main.js
 loadtest.js
+
+.elixir_ls/
+_build/
+deps/
+
+priv/
