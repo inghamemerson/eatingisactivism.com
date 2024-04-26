@@ -119,8 +119,8 @@ func Router() *gin.Engine {
 
 			c.HTML(http.StatusOK, "home.html.tmpl", gin.H{
 				"locations": locs,
-				"standards": locations.LocationStandards,
-				"tags": locations.LocationTags,
+				"standards": locations.GetStandards(),
+				"tags": locations.GetTags(),
 				"locationsJSON": string(locationJSON),
 				"mapboxToken": mapboxToken,
 			})
@@ -170,7 +170,7 @@ func Router() *gin.Engine {
 				standards = strings.Split(standardsParam, ",")
 			}
 
-			var locs []locations.Location = []locations.Location{}
+			var locs locations.LocationMap = locations.LocationMap{}
 
 			if (len(tags) != 0 || len(standards) != 0) {
 				locs = locations.FilterLocations(standards, tags)

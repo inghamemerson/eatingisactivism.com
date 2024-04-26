@@ -118,7 +118,7 @@ const eia = (function() {
   function addMapLocations() {
     locations.forEach(location => {
       const el = document.createElement("div");
-      const isPatagonia = location.Tags.includes('patagonia') ? 'patagonia' : '';
+      const isPatagonia = location.Tags.includes('patagonia') ? 'patagonia-provisions' : '';
       el.className = `marker ${ location.Standard } ${ isPatagonia }`;
       const marker = new mapboxgl.Marker(el)
         .setLngLat([location.Lat, location.Lng])
@@ -127,19 +127,14 @@ const eia = (function() {
           <div class="location-popup flex flex-col ${
             location.Standard
           } ${isPatagonia}">
-            ${
-              location.Image
-                ? `<div class="location-popup-image" style="background-image: url(\'/public/images/${location.Slug}-popup.jpg\')"></div>`
-                : ""
-            }
             <div class="location-popup-content">
               <ul class="tags">
                 ${location.Tags.map(
-                  (tag) => `<li class="tag">${util.renderTagIcon(tag)}</li>`
+                  (tag) => `<li class="tag">${tag.Icon}</li>`
                 ).join("")}
               </ul>
               <h3>${location.Name}</h3>
-              <p>${location.Description}</p>
+              <p>${location.ShortDescription}</p>
               <a class="outline-none button button-outline" href="/locations/${
                 location.Slug
               }" target="_blank">Explore</a>

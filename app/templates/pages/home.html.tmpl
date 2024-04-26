@@ -3,7 +3,6 @@
 
 {{ define "head" }}
     <meta property="og:url" content="https://eatingisactivism.com/">
-    <script src="/public/util.js"></script>
     <script src="/public/main.js"></script>
 {{ end }}
 
@@ -26,11 +25,11 @@
           {{ range .standards }}
             <div class="relative flex items-start checkbox">
               <div class="flex h-6 items-center">
-                <input id="{{ .Value }}" aria-describedby="{{ .Value }}-description" name="{{ .Value }}" value="{{ .Value }}" type="checkbox"
+                <input id="{{ .Slug }}" aria-describedby="{{ .Slug }}-description" name="{{ .Slug }}" value="{{ .Slug }}" type="checkbox"
                   class="h-4 w-4 rounded border-gray-}300 text-indigo-600 focus:ring-indigo-600 hover:cursor-pointer" checked>
               </div>
               <div class="ml-3 text-sm leading-6">
-                <label for="{{ .Value }}" class="font-medium text-gray-900 hover:cursor-pointer">{{ .Label }}</label>
+                <label for="{{ .Slug }}" class="font-medium text-gray-900 hover:cursor-pointer">{{ .Name }}</label>
               </div>
             </div>
           {{ end }}
@@ -40,11 +39,11 @@
           {{ range .tags }}
             <div class="relative flex items-start checkbox">
               <div class="flex h-6 items-center">
-                <input id="{{ .Value }}" aria-describedby="{{ .Value }}-description" name="{{ .Value }}" value="{{ .Value }}" type="checkbox"
+                <input id="{{ .Slug }}" aria-describedby="{{ .Slug }}-description" name="{{ .Slug }}" value="{{ .Slug }}" type="checkbox"
                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 hover:cursor-pointer" checked>
               </div>
               <div class="ml-3 text-sm leading-6">
-                <label for="{{ .Value }}" class="font-medium text-gray-900 hover:cursor-pointer">{{ .Label }}</label>
+                <label for="{{ .Slug }}" class="font-medium text-gray-900 hover:cursor-pointer">{{ .Name }}</label>
               </div>
             </div>
           {{ end }}

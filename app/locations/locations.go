@@ -3,11 +3,11 @@ package locations
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"strings"
+	"io"
 	"time"
+
+	"eatingisactivism/app/contentful"
 
 	"github.com/joho/godotenv"
 )
@@ -19,165 +19,123 @@ type SheetResponse struct {
 }
 
 type Location struct {
+	ID string
 	Name string
 	Slug string
 	Url string
-	Description string
+	ShortDescription string
+	LongDescription string
 	Lat string
 	Lng string
-	Standard string
-	Tags []string
-	Image bool
+	Standard LocationStandard
+	Tags []LocationTag
 }
+
+type LocationStandard struct {
+	ID string
+	Name string
+	Slug string
+}
+
+type LocationTag struct {
+	ID string
+	Name string
+	Slug string
+}
+
+type LocationMap map[string]Location
+type LocationStandardMap map[string]LocationStandard
+type LocationTagMap map[string]LocationTag
 
 var (
-	allLocations []Location
-	sheetsUrl string
-	sheetsKey string
+	allLocations map[string]Location
+	allStandards map[string]LocationStandard
+	allTags map[string]LocationTag
+	contentfulClient *contentful.Contentful
 )
-
-type selectItem struct {
-	Label string
-	Value string
-}
-
-var LocationStandards []selectItem = []selectItem{
-	{
-		Label: "Gold",
-		Value: "gold",
-	},
-	{
-		Label: "Silver",
-		Value: "silver",
-	},
-	{
-		Label: "Bronze",
-		Value: "bronze",
-	},
-}
-
-var ValidStandards []string = map_values(LocationStandards, "Value")
-
-var LocationTags []selectItem = []selectItem{
-	{
-		Label: "Beef",
-		Value: "beef",
-	},
-	{
-		Label: "Pork",
-		Value: "pork",
-	},
-	{
-		Label: "Fish",
-		Value: "fish",
-	},
-	{
-		Label: "Produce",
-		Value: "produce",
-	},
-	{
-		Label: "Poultry",
-		Value: "poultry",
-	},
-	{
-		Label: "Dairy",
-		Value: "dairy",
-	},
-	{
-		Label: "Grains",
-		Value: "grains",
-	},
-	{
-		Label: "Shellfish",
-		Value: "shellfish",
-	},
-	{
-		Label: "Honey",
-		Value: "honey",
-	},
-	{
-		Label: "Wine",
-		Value: "wine",
-	},
-	{
-		Label: "Beer",
-		Value: "beer",
-	},
-	{
-		Label: "Patagonia Provisions",
-		Value: "patagonia",
-	},
-}
-
-var ValidTags []string = map_values(LocationTags, "Value")
 
 func init() {
 	godotenv.Load(".env")
 
-	url := os.Getenv("URL")
-	key := os.Getenv("KEY")
+	contentfulApiKey := os.Getenv("CONTENTFUL_API_KEY")
+	contentfulApiBaseUrl := os.Getenv("CONTENTFUL_API_BASE_URL")
+	contentfulSpaceId := os.Getenv("CONTENTFUL_SPACE_ID")
 
-	if (url == "" || key == "") {
-		fmt.Println("URL or KEY not found in .env")
+	if (contentfulApiKey == "" || contentfulApiBaseUrl == "" || contentfulSpaceId == "") {
+		fmt.Println("Error: missing Contentful API key, base URL, or space ID")
+		return
 	}
 
-	sheetsUrl = url
-	sheetsKey = key
+	allLocations = make(map[string]Location)
+	allStandards = make(map[string]LocationStandard)
+	allTags = make(map[string]LocationTag)
 
-	allLocations = SheetLocations()
+	contentfulClient = contentful.New(contentfulApiKey, contentfulSpaceId, "master", contentfulApiBaseUrl)
 
-	go PollLocations()
+	buildData()
+
+	go Poll()
 }
 
 // GetLocations returns all locations
-func GetLocations() []Location {
+func GetLocations() LocationMap {
 	return allLocations
 }
 
-// PollLocations polls the Google Sheets API for new locations every 5 seconds
-func PollLocations() {
-	for {
-		newLocations := SheetLocations()
+func GetStandards() LocationStandardMap {
+	return allStandards
+}
 
-		if len(newLocations) > 0 {
-			allLocations = newLocations
-		}
+func GetTags() LocationTagMap {
+	return allTags
+}
+
+// PollLocations polls the Google Sheets API for new locations every 5 seconds
+func Poll() {
+	for {
+		buildData()
 
 		time.Sleep(10 * time.Second)
 	}
 }
 
-// SheetLocations fetches the locations from the Google Sheets API
-func SheetLocations() []Location {
+func buildData() {
+	newStandards := ContentfulStandards()
+	newTags := ContentfulTags()
+	newLocations := ContentfulLocations()
+
+	if len(newStandards) > 0 {
+		AddStandards(newStandards)
+	}
+
+	if len(newTags) > 0 {
+		AddTags(newTags)
+	}
+
+	if len(newLocations) > 0 {
+		AddLocations(newLocations)
+	}
+}
+
+func ContentfulLocations() []Location {
 	locations := []Location{}
 
-	resp, err := http.Get(sheetsUrl + "?key=" + sheetsKey)
+	entriesResponse, err := contentfulClient.GetEntries("location", 1000, 0)
 
 	if err != nil {
 		fmt.Println("Error: ", err)
 		return locations
 	}
 
-	// if we do not have a response, return empty locations
-	if resp == nil {
-		fmt.Println("Error: no response")
-		return locations
-	}
-
-	// if status code is not 200, return empty locations
-	if resp.StatusCode != 200 {
-		fmt.Println("Error: ", resp.Status)
-		return locations
-	}
-
-	defer resp.Body.Close()
-	resBody, err := io.ReadAll(resp.Body)
+	defer entriesResponse.Close()
+	resBody, err := io.ReadAll(entriesResponse)
 
 	if err != nil {
 		fmt.Println("Error: ", err)
+		return locations
 	}
 
-	var response SheetResponse
+	var response contentful.ContentfulLocationResponse
 
 	err = json.Unmarshal(resBody, &response)
 
@@ -185,76 +143,194 @@ func SheetLocations() []Location {
 		fmt.Println("Error: ", err)
 	}
 
-	// the response body "values" is a JSON array of Locations that we need to parse
-	for _, location := range response.Values {
-		// ensure the location has all the necessary fields
-		if len(location) != 9 {
-			continue
-		}
+	for _, location := range response.Items {
+		standard := GetStandardByID(location.Standard.Sys.ID)
+		tags := []LocationTag{}
 
-		tags := strings.Split(location[7], ",")
-		locationTags := []string{}
-		for _, tag := range tags {
-			tag = strings.ToLower(strings.TrimSpace(tag))
-
-			if !string_in_array(tag, ValidTags) {
-				continue
-			}
-
-			locationTags = append(locationTags, tag)
-		}
-
-		locationStandard := ""
-		standard := strings.ToLower(strings.TrimSpace(location[6]))
-		if string_in_array(standard, ValidStandards) {
-			locationStandard = standard
-		}
-
-		image := false
-		if location[8] == "TRUE" {
-			image = true
+		for _, tag := range location.Tags {
+			tags = append(tags, GetTagByID(tag.Sys.ID))
 		}
 
 		locations = append(locations, Location{
-			Name: location[0],
-			Slug: location[1],
-			Url: location[2],
-			Description: location[3],
-			Lat: location[4],
-			Lng: location[5],
-			Standard: locationStandard,
-			Tags: locationTags,
-			Image: image,
+			ID: location.ID,
+			Name: location.Name,
+			Slug: location.Slug,
+			Url: location.Url,
+			ShortDescription: location.ShortDescription,
+			LongDescription: location.LongDescription,
+			Lat: location.Lat,
+			Lng: location.Lng,
+			Standard: standard,
+			Tags: tags,
 		})
 	}
 
 	return locations
 }
 
+func ContentfulStandards() []LocationStandard {
+	standards := []LocationStandard{}
+
+	entriesResponse, err := contentfulClient.GetEntries("standard", 1000, 0)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return standards
+	}
+
+	defer entriesResponse.Close()
+	resBody, err := io.ReadAll(entriesResponse)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return standards
+	}
+
+	var response contentful.ContentfulLocationStandardResponse
+
+	err = json.Unmarshal(resBody, &response)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	for _, standard := range response.Items {
+		standards = append(standards, LocationStandard{
+			ID: standard.ID,
+			Name: standard.Name,
+			Slug: standard.Slug,
+		})
+	}
+
+	return standards
+}
+
+func ContentfulTags() []LocationTag {
+	tags := []LocationTag{}
+
+	entriesResponse, err := contentfulClient.GetEntries("tags", 1000, 0)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return tags
+	}
+
+	defer entriesResponse.Close()
+	resBody, err := io.ReadAll(entriesResponse)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return tags
+	}
+
+	var response contentful.ContentfulLocationTagResponse
+
+	err = json.Unmarshal(resBody, &response)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	for _, tag := range response.Items {
+		tags = append(tags, LocationTag{
+			ID: tag.ID,
+			Name: tag.Name,
+			Slug: tag.Slug,
+		})
+	}
+
+	return tags
+}
+
+func AddLocations(locations []Location) {
+	for _, location := range locations {
+		allLocations[location.Slug] = location
+	}
+}
+
+func AddStandards(standards []LocationStandard) {
+	for _, standard := range standards {
+		allStandards[standard.Slug] = standard
+	}
+}
+
+func AddTags(tags []LocationTag) {
+	for _, tag := range tags {
+		allTags[tag.Slug] = tag
+	}
+}
+
 func GetLocationBySlug(slug string) Location {
-	for _, location := range allLocations {
-		if location.Slug == slug {
-			return location
-		}
+	location, ok := allLocations[slug]
+
+	if ok {
+		return location
 	}
 
 	return Location{}
 }
 
+func GetStandardBySlug(slug string) LocationStandard {
+	standard, ok := allStandards[slug]
+
+	if ok {
+		return standard
+	}
+
+	return LocationStandard{}
+}
+
+func GetTagBySlug(slug string) LocationTag {
+	tag, ok := allTags[slug]
+
+	if ok {
+		return tag
+	}
+
+	return LocationTag{}
+}
+
+func GetTagByID(id string) LocationTag {
+	for _, tag := range allTags {
+		if tag.ID == id {
+			return tag
+		}
+	}
+
+	return LocationTag{}
+}
+
+func GetStandardByID(id string) LocationStandard {
+	for _, standard := range allStandards {
+		if standard.ID == id {
+			return standard
+		}
+	}
+
+	return LocationStandard{}
+}
+
 // filter function that return locations based on Standards, and Tags
-func FilterLocations(standards []string, tags []string) []Location {
-	locations := []Location{}
+func FilterLocations(standards []string, tags []string) LocationMap {
+	locations := LocationMap{}
 
 	for _, location := range allLocations {
-		if len(standards) > 0 && !string_in_array(location.Standard, standards) {
+		if len(standards) > 0 && !string_in_array(location.Standard.Slug, standards) {
 			continue
 		}
 
-		if len(tags) > 0 && !array_contains(location.Tags, tags) {
+		// need to make an array of the location tag slugs
+		tagSlugs := []string{}
+
+		for _, tag := range location.Tags {
+			tagSlugs = append(tagSlugs, tag.Slug)
+		}
+
+		if len(tags) > 0 && !array_contains(tagSlugs, tags) {
 			continue
 		}
 
-		locations = append(locations, location)
+		locations[location.Slug] = location
 	}
 
 	return locations
@@ -280,18 +356,4 @@ func array_contains(arr []string, arr2 []string) bool {
 	}
 
 	return false
-}
-
-func map_values(arr []selectItem, key string) []string {
-	values := []string{}
-
-	for _, v := range arr {
-		if key == "Label" {
-			values = append(values, v.Label)
-		} else if key == "Value" {
-			values = append(values, v.Value)
-		}
-	}
-
-	return values
 }
