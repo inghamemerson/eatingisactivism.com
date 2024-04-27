@@ -8,11 +8,11 @@ build-css:
 
 watch-js:
 	@echo "Watching scripts..."
-	bun build --entrypoints ./src/main.js ./src/util.js --outdir ./public --watch
+	bun build --entrypoints ./src/main.js --outdir ./public --watch
 
 build-js:
 	@echo "Building scripts..."
-	bun build --entrypoints ./src/main.js ./src/util.js --outdir ./public --minify-whitespace --minify-syntax
+	bun build --entrypoints ./src/main.js --outdir ./public --minify-whitespace --minify-syntax
 
 build:
 	@echo "Building app..."

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"io"
 	"strings"
 
 	"eatingisactivism/app/auth"
@@ -70,7 +71,7 @@ func LoadTemplates() multitemplate.Renderer {
 }
 
 func Router() *gin.Engine {
-	r := gin.Default()
+	r := gin.New()
 
 	r.HTMLRender = LoadTemplates()
 
@@ -179,6 +180,17 @@ func Router() *gin.Engine {
 			}
 
 			c.JSON(http.StatusOK, locs)
+		})
+
+		// route to accept webhook from contentful
+		v1.POST("/webhook", func(c *gin.Context) {
+
+			jsonData, err := io.ReadAll(c.Request.Body)
+			topic := c.GetHeader("X-Contentful-Topic")
+
+			if err != nil {
+				locations.HandleWebhook(topic, jsonData)
+			}
 		})
 	}
 

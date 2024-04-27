@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -51,8 +52,7 @@ func renderUnauthHTML(c *gin.Context, message string) {
 		return
 }
 
-
-func isAuthed(c *gin.Context) bool {
+func getToken(c *gin.Context) string {
 	token, _ := c.Cookie("_token")
 
 	// if we don't have a token from the cookie, check the URL params for "_token"
@@ -60,11 +60,23 @@ func isAuthed(c *gin.Context) bool {
 		token = c.Query("_token")
 	}
 
-	if (IsPasswordValid(token)) {
-		return true
+	if token == "" {
+		token = c.GetHeader("Authorization")
+
+		// remove the "Bearer " prefix
+		if token != "" {
+			token = strings.Split(token, "Bearer ")[1]
+		}
 	}
 
-	return false
+	return token
+}
+
+
+func isAuthed(c *gin.Context) bool {
+	token := getToken(c)
+
+	return IsPasswordValid(token)
 }
 
 func AuthHTML() gin.HandlerFunc {
@@ -85,12 +97,7 @@ func AuthHTML() gin.HandlerFunc {
 		}
 
 		if (isAuthed(c)) {
-			token, _ := c.Cookie("_token")
-
-			// if we don't have a token from the cookie, check the URL params for "_token"
-			if token == "" {
-				token = c.Query("_token")
-			}
+			token := getToken(c)
 
 			c.SetCookie("_token", token, int(60 * 60 * 24), "/", "", false, true)
 			c.Next()

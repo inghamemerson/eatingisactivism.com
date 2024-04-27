@@ -18,10 +18,21 @@ const eia = (function() {
   }
 
   function filterLocations() {
-    locations.forEach(location => {
+    if (debugMode) {
+      console.debug("Filtering locations...");
+      console.debug("Filter standards:", filterStandards);
+      console.debug("Filter tags:", filterTags);
+    }
+
+    Object.keys(locations).forEach(slug => {
+      const location = locations[slug];
+      if (debugMode) {
+        console.debug("Filtering location:", location.Slug);
+        console.log(location)
+      }
       const marker = markers.get(location.Slug);
-      const hasStandard = filterStandards.size === 0 || filterStandards.has(location.Standard);
-      const hasTags = filterTags.size === 0 || location.Tags.some(tag => filterTags.has(tag));
+      const hasStandard = filterStandards.size === 0 || filterStandards.has(location.Standard.Slug);
+      const hasTags = filterTags.size === 0 || location.Tags.some(tag => filterTags.has(tag.Slug));
 
       if (hasStandard && hasTags) {
         marker.addTo(Mapbox);
@@ -39,7 +50,9 @@ const eia = (function() {
 
       callback();
     } else {
-      console.warn(`${lib} is not available yet, waiting...`);
+      if (debugMode) {
+        console.warn(`${lib} is not available yet, waiting...`);
+      }
       setTimeout(() => {
         waitForLibrary(lib, callback);
       }, timeout);
@@ -71,7 +84,9 @@ const eia = (function() {
 
   function injectJS(url) {
     if (!isValidURL(url)) {
-      console.error("Invalid URL:", url);
+      if (debugMode) {
+        console.error("Invalid URL:", url);
+      }
       return;
     }
 
@@ -94,7 +109,9 @@ const eia = (function() {
 
   function injectCSS(url) {
     if (!isValidURL(url)) {
-      console.error("Invalid URL:", url);
+      if (debugMode) {
+        console.error("Invalid URL:", url);
+      }
       return;
     }
 
@@ -116,12 +133,13 @@ const eia = (function() {
   }
 
   function addMapLocations() {
-    locations.forEach(location => {
+    Object.keys(locations).forEach(slug => {
+      const location = locations[slug];
       const el = document.createElement("div");
       const isPatagonia = location.Tags.includes('patagonia') ? 'patagonia-provisions' : '';
       el.className = `marker ${ location.Standard } ${ isPatagonia }`;
       const marker = new mapboxgl.Marker(el)
-        .setLngLat([location.Lat, location.Lng])
+        .setLngLat([location.Lng, location.Lat])
         .setPopup(
           new mapboxgl.Popup().setHTML(`
           <div class="location-popup flex flex-col ${
@@ -190,8 +208,6 @@ const eia = (function() {
       } else {
         mapPadding.left = 0;
       }
-
-      console.log("Map padding:", mapPadding)
 
       Mapbox.easeTo({
         padding: mapPadding,

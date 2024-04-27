@@ -4,19 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"io"
 	"time"
 
 	"eatingisactivism/app/contentful"
 
 	"github.com/joho/godotenv"
 )
-
-type SheetResponse struct {
-	Range          string       `json:"range"`
-	MajorDimension string       `json:"majorDimension"`
-	Values         [][]string   `json:"values"`
-}
 
 type Location struct {
 	ID string
@@ -25,8 +18,8 @@ type Location struct {
 	Url string
 	ShortDescription string
 	LongDescription string
-	Lat string
-	Lng string
+	Lat float64
+	Lng float64
 	Standard LocationStandard
 	Tags []LocationTag
 }
@@ -35,12 +28,14 @@ type LocationStandard struct {
 	ID string
 	Name string
 	Slug string
+	Icon string
 }
 
 type LocationTag struct {
 	ID string
 	Name string
 	Slug string
+	Icon string
 }
 
 type LocationMap map[string]Location
@@ -74,7 +69,7 @@ func init() {
 
 	buildData()
 
-	go Poll()
+	// go Poll()
 }
 
 // GetLocations returns all locations
@@ -117,18 +112,35 @@ func buildData() {
 	}
 }
 
+func removeEntry(contentType string, id string) {
+	switch contentType {
+		case "location":
+			delete(allLocations, id)
+		case "standard":
+			delete(allStandards, id)
+		case "tags":
+			delete(allTags, id)
+	}
+}
+
+func getEntry(contentType string, id string) {
+	switch contentType {
+		case "location":
+			location := ContentfulLocation(id)
+			allLocations[location.Slug] = location
+		case "standard":
+			standard := ContentfulStandard(id)
+			allStandards[standard.Slug] = standard
+		case "tags":
+			tag := ContentfulTag(id)
+			allTags[tag.Slug] = tag
+	}
+}
+
 func ContentfulLocations() []Location {
 	locations := []Location{}
 
-	entriesResponse, err := contentfulClient.GetEntries("location", 1000, 0)
-
-	if err != nil {
-		fmt.Println("Error: ", err)
-		return locations
-	}
-
-	defer entriesResponse.Close()
-	resBody, err := io.ReadAll(entriesResponse)
+	entriesResponse, err := contentfulClient.GetEntries("location", 1000, 0, "")
 
 	if err != nil {
 		fmt.Println("Error: ", err)
@@ -137,29 +149,29 @@ func ContentfulLocations() []Location {
 
 	var response contentful.ContentfulLocationResponse
 
-	err = json.Unmarshal(resBody, &response)
+	err = json.Unmarshal(entriesResponse, &response)
 
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}
 
 	for _, location := range response.Items {
-		standard := GetStandardByID(location.Standard.Sys.ID)
+		standard := GetStandardByID(location.Fields.Standard.Sys.ID)
 		tags := []LocationTag{}
 
-		for _, tag := range location.Tags {
+		for _, tag := range location.Fields.Tags {
 			tags = append(tags, GetTagByID(tag.Sys.ID))
 		}
 
 		locations = append(locations, Location{
-			ID: location.ID,
-			Name: location.Name,
-			Slug: location.Slug,
-			Url: location.Url,
-			ShortDescription: location.ShortDescription,
-			LongDescription: location.LongDescription,
-			Lat: location.Lat,
-			Lng: location.Lng,
+			ID: location.Sys.ID,
+			Name: location.Fields.Name,
+			Slug: location.Fields.Slug,
+			Url: location.Fields.Url,
+			ShortDescription: location.Fields.ShortDescription,
+			LongDescription: location.Fields.LongDescription,
+			Lat: location.Fields.Coordinates.Lat,
+			Lng: location.Fields.Coordinates.Lng,
 			Standard: standard,
 			Tags: tags,
 		})
@@ -168,18 +180,55 @@ func ContentfulLocations() []Location {
 	return locations
 }
 
-func ContentfulStandards() []LocationStandard {
-	standards := []LocationStandard{}
+func ContentfulLocation(id string) Location {
+	location := Location{}
 
-	entriesResponse, err := contentfulClient.GetEntries("standard", 1000, 0)
+	entriesResponse, err := contentfulClient.GetEntries("location", 1000, 0, id)
 
 	if err != nil {
 		fmt.Println("Error: ", err)
-		return standards
+		return location
 	}
 
-	defer entriesResponse.Close()
-	resBody, err := io.ReadAll(entriesResponse)
+	var response contentful.ContentfulLocation
+
+	err = json.Unmarshal(entriesResponse, &response)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	if (response.Sys.ID == "") {
+		return location
+	}
+
+	standard := GetStandardByID(response.Fields.Standard.Sys.ID)
+	tags := []LocationTag{}
+
+	for _, tag := range response.Fields.Tags {
+		tags = append(tags, GetTagByID(tag.Sys.ID))
+	}
+
+	location = Location{
+		ID: response.Sys.ID,
+		Name: response.Fields.Name,
+		Slug: response.Fields.Slug,
+		Url: response.Fields.Url,
+		ShortDescription: response.Fields.ShortDescription,
+		LongDescription: response.Fields.LongDescription,
+		Lat: response.Fields.Coordinates.Lat,
+		Lng: response.Fields.Coordinates.Lng,
+		Standard: standard,
+		Tags: tags,
+	}
+
+	return location
+}
+
+func ContentfulStandards() []LocationStandard {
+	standards := []LocationStandard{}
+
+	entriesResponse, err := contentfulClient.GetEntries("standard", 1000, 0, "")
 
 	if err != nil {
 		fmt.Println("Error: ", err)
@@ -188,7 +237,7 @@ func ContentfulStandards() []LocationStandard {
 
 	var response contentful.ContentfulLocationStandardResponse
 
-	err = json.Unmarshal(resBody, &response)
+	err = json.Unmarshal(entriesResponse, &response)
 
 	if err != nil {
 		fmt.Println("Error: ", err)
@@ -196,27 +245,52 @@ func ContentfulStandards() []LocationStandard {
 
 	for _, standard := range response.Items {
 		standards = append(standards, LocationStandard{
-			ID: standard.ID,
-			Name: standard.Name,
-			Slug: standard.Slug,
+			ID: standard.Sys.ID,
+			Name: standard.Fields.Title,
+			Slug: standard.Fields.Slug,
+			Icon: standard.Fields.Icon,
 		})
 	}
 
 	return standards
 }
 
-func ContentfulTags() []LocationTag {
-	tags := []LocationTag{}
+func ContentfulStandard(id string) LocationStandard {
+	standard := LocationStandard{}
 
-	entriesResponse, err := contentfulClient.GetEntries("tags", 1000, 0)
+	entriesResponse, err := contentfulClient.GetEntries("standard", 1000, 0, id)
 
 	if err != nil {
 		fmt.Println("Error: ", err)
-		return tags
+		return standard
 	}
 
-	defer entriesResponse.Close()
-	resBody, err := io.ReadAll(entriesResponse)
+	var response contentful.ContentfulLocationStandard
+
+	err = json.Unmarshal(entriesResponse, &response)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	if (response.Sys.ID == "") {
+		return standard
+	}
+
+	standard = LocationStandard{
+		ID: response.Sys.ID,
+		Name: response.Fields.Title,
+		Slug: response.Fields.Slug,
+		Icon: response.Fields.Icon,
+	}
+
+	return standard
+}
+
+func ContentfulTags() []LocationTag {
+	tags := []LocationTag{}
+
+	entriesResponse, err := contentfulClient.GetEntries("tags", 1000, 0, "")
 
 	if err != nil {
 		fmt.Println("Error: ", err)
@@ -225,7 +299,7 @@ func ContentfulTags() []LocationTag {
 
 	var response contentful.ContentfulLocationTagResponse
 
-	err = json.Unmarshal(resBody, &response)
+	err = json.Unmarshal(entriesResponse, &response)
 
 	if err != nil {
 		fmt.Println("Error: ", err)
@@ -233,13 +307,46 @@ func ContentfulTags() []LocationTag {
 
 	for _, tag := range response.Items {
 		tags = append(tags, LocationTag{
-			ID: tag.ID,
-			Name: tag.Name,
-			Slug: tag.Slug,
+			ID: tag.Sys.ID,
+			Name: tag.Fields.Title,
+			Slug: tag.Fields.Slug,
+			Icon: tag.Fields.Icon,
 		})
 	}
 
 	return tags
+}
+
+func ContentfulTag(id string) LocationTag {
+	tag := LocationTag{}
+
+	entriesResponse, err := contentfulClient.GetEntries("tags", 1000, 0, id)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return tag
+	}
+
+	var response contentful.ContentfulLocationTag
+
+	err = json.Unmarshal(entriesResponse, &response)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	if (response.Sys.ID == "") {
+		return tag
+	}
+
+	tag = LocationTag{
+		ID: response.Sys.ID,
+		Name: response.Fields.Title,
+		Slug: response.Fields.Slug,
+		Icon: response.Fields.Icon,
+	}
+
+	return tag
 }
 
 func AddLocations(locations []Location) {
@@ -308,6 +415,32 @@ func GetStandardByID(id string) LocationStandard {
 	}
 
 	return LocationStandard{}
+}
+
+func HandleWebhook(webhookType string, data []byte) {
+	var webhook contentful.ContentfulWebhook
+
+	err := json.Unmarshal(data, &webhook)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return
+	}
+
+	entryID := webhook.Sys.ID
+
+	switch webhookType {
+	case contentful.WebhookPublish:
+		getEntry(webhook.Sys.ContentType.Sys.ID, entryID)
+	case contentful.WebhookUnpublish:
+		removeEntry(webhook.Sys.ContentType.Sys.ID, entryID)
+	case contentful.WebhookArchive:
+		removeEntry(webhook.Sys.ContentType.Sys.ID, entryID)
+	case contentful.WebhookUnarchive:
+		getEntry(webhook.Sys.ContentType.Sys.ID, entryID)
+	case contentful.WebhookDelete:
+		removeEntry(webhook.Sys.ContentType.Sys.ID, entryID)
+	}
 }
 
 // filter function that return locations based on Standards, and Tags

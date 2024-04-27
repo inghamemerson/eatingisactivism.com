@@ -23,28 +23,44 @@ type ContentfulResponseLink struct {
 }
 
 type ContentfulLocation struct {
-	ID string `json:"sys.id"`
-	Name string `json:"fields.name"`
-	Slug string `json:"fields.slug"`
-	Url string `json:"fields.url"`
-	ShortDescription string `json:"fields.shortDescription"`
-	LongDescription string `json:"fields.longDescription"`
-	Lat string `json:"fields.coordinates.lat"`
-	Lng string `json:"fields.coordinates.lon"`
-	Standard ContentfulResponseLink `json:"fields.standard"`
-	Tags []ContentfulResponseLink `json:"fields.tags"`
+	Sys struct {
+		ID string `json:"id"`
+	} `json:"sys"`
+	Fields struct {
+		Name string `json:"name"`
+		Slug string `json:"slug"`
+		Url string `json:"url"`
+		ShortDescription string `json:"shortDescription"`
+		LongDescription string `json:"longDescription"`
+		Coordinates struct {
+			Lat float64 `json:"lat"`
+			Lng float64 `json:"lon"`
+		} `json:"coordinates"`
+		Standard ContentfulResponseLink `json:"standard"`
+		Tags []ContentfulResponseLink `json:"tags"`
+	} `json:"fields"`
 }
 
 type ContentfulLocationStandard struct {
-	ID string `json:"sys.id"`
-	Name string `json:"fields.name"`
-	Slug string `json:"fields.slug"`
+	Sys struct {
+		ID string `json:"id"`
+	} `json:"sys"`
+	Fields struct {
+		Title string `json:"title"`
+		Slug string `json:"slug"`
+		Icon string `json:"icon"`
+	} `json:"fields"`
 }
 
 type ContentfulLocationTag struct {
-	ID string `json:"sys.id"`
-	Name string `json:"fields.name"`
-	Slug string `json:"fields.slug"`
+	Sys struct {
+		ID string `json:"id"`
+	} `json:"sys"`
+	Fields struct {
+		Title string `json:"title"`
+		Slug string `json:"slug"`
+		Icon string `json:"icon"`
+	} `json:"fields"`
 }
 
 type ContentfulLocationResponse struct {
@@ -62,6 +78,25 @@ type ContentfulLocationTagResponse struct {
 	Message string `json:"message"`
 }
 
+type ContentfulWebhook struct {
+	Sys struct {
+		ID string `json:"id"`
+		ContentType struct {
+			Sys struct {
+				ID string `json:"id"`
+			}
+		} `json:"contentType"`
+	} `json:"sys"`
+}
+
+const (
+	WebhookPublish string = "ContentManagement.Entry.publish"
+	WebhookUnpublish string = "ContentManagement.Entry.unpublish"
+	WebhookArchive string = "ContentManagement.Entry.archive"
+	WebhookUnarchive string = "ContentManagement.Entry.unarchive"
+	WebhookDelete string = "ContentManagement.Entry.delete"
+)
+
 func New(token string, spaceId string, environment string, baseURL string) *Contentful {
 	return &Contentful{
 		client: &http.Client{},
@@ -72,16 +107,20 @@ func New(token string, spaceId string, environment string, baseURL string) *Cont
 	}
 }
 
-func (c *Contentful) getEntriesURL(contentType string) (string, error) {
-	url := fmt.Sprintf("%s/spaces/%s/environments/%s/entries?access_token=%s&content_type=%s", c.BaseURL, c.SpaceID, c.Environment, c.token, contentType)
+func (c *Contentful) getEntriesURL(contentType string, id string) (string, error) {
+	url := fmt.Sprintf("%s/spaces/%s/environments/%s/entries", c.BaseURL, c.SpaceID, c.Environment)
+
+	if id != "" {
+		url = fmt.Sprintf("%s/%s", url, id)
+	}
+
+	url = fmt.Sprintf("%s?access_token=%s&content_type=%s", url, c.token, contentType)
 
 	return url, nil
 }
 
-func (c *Contentful) GetEntries(contentType string, limit int, offset int) (io.ReadCloser, error) {
-	url, err := c.getEntriesURL(contentType)
-
-	fmt.Println("URL: ", url)
+func (c *Contentful) GetEntries(contentType string, limit int, offset int, id string) ([]byte, error) {
+	url, err := c.getEntriesURL(contentType, id)
 
 	if err != nil {
 		return nil, err
@@ -115,8 +154,12 @@ func (c *Contentful) GetEntries(contentType string, limit int, offset int) (io.R
 		return nil, fmt.Errorf("error: no response")
 	}
 
-	// lets debug and see what the response is
-	// fmt.Println("Response: ", resp)
+	defer resp.Body.Close()
+	resBody, err := io.ReadAll(resp.Body)
 
-	return resp.Body, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return resBody, nil
 }
