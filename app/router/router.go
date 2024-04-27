@@ -6,9 +6,12 @@ import (
 	"os"
 	"io"
 	"strings"
+	"slices"
+	"strconv"
 
 	"eatingisactivism/app/auth"
 	"eatingisactivism/app/locations"
+	"eatingisactivism/app/seasons"
 
 	healthcheck "github.com/RaMin0/gin-health-check"
 	brotli "github.com/anargu/gin-brotli"
@@ -179,6 +182,76 @@ func Router() *gin.Engine {
 			}
 
 			c.JSON(http.StatusOK, locs)
+		})
+
+		v1.GET("/foods", func(c *gin.Context) {
+			c.JSON(http.StatusOK, seasons.GetFoods())
+		})
+
+		v1.GET("/seasons/:season", func(c *gin.Context) {
+			season := c.Param("season")
+
+			if (season == "") {
+				renderJSONError(c, http.StatusBadRequest, "Season not provided")
+				return
+			}
+
+			seasonInt, err := strconv.Atoi(season)
+
+			if (err != nil || seasonInt < 1 || seasonInt > 24) {
+				renderJSONError(c, http.StatusBadRequest, "Invalid state")
+				return
+			}
+
+			foods := seasons.GetFoodsBySeason(seasonInt)
+
+			c.JSON(http.StatusOK, foods)
+		})
+
+		v1.GET("/states/:state", func(c *gin.Context) {
+			state := c.Param("state")
+
+			if (state == "") {
+				renderJSONError(c, http.StatusBadRequest, "Season not provided")
+				return
+			}
+
+			foods := seasons.GetFoodsByState(state)
+
+			c.JSON(http.StatusOK, foods)
+		})
+
+		v1.GET("/states/:state/seasons/:season", func(c *gin.Context) {
+			state := c.Param("state")
+			season := c.Param("season")
+
+			if (state == "" || season == "") {
+				renderJSONError(c, http.StatusBadRequest, "Invalid state or season")
+				return
+			}
+
+			seasonInt, err := strconv.Atoi(season)
+
+			if (err != nil || seasonInt < 1 || seasonInt > 24) {
+				renderJSONError(c, http.StatusBadRequest, "Invalid state")
+				return
+			}
+
+			// check if state is in the list of Valid States
+			// first uppercase the state
+			state = strings.ToUpper(state)
+			validStates := seasons.ValidStates()
+
+			validState := slices.Contains(validStates, state)
+
+			if (!validState) {
+				renderJSONError(c, http.StatusBadRequest, "Invalid state")
+				return
+			}
+
+			foods := seasons.GetFoodsByStateAndSeason(state, seasonInt)
+
+			c.JSON(http.StatusOK, foods)
 		})
 
 		// route to accept webhook from contentful

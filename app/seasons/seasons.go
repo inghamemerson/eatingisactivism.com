@@ -12,6 +12,66 @@ type Food struct {
 	States map[string][]int `json:"states"`
 }
 
+func ValidStates() []string {
+	states := []string{}
+	for state := range States {
+		states = append(states, state)
+	}
+	return states
+}
+
+func GetFoods() []Food {
+	return Foods
+}
+
+func GetRegionStates(region string) []string {
+	states := []string{}
+	for state, stateRegion := range StateRegion {
+		if stateRegion == region {
+			states = append(states, state)
+		}
+	}
+	return states
+}
+
+func GetFoodsBySeason(season int) []Food {
+	foods := []Food{}
+	for _, food := range Foods {
+		for _, foodSeason := range food.States {
+			for _, s := range foodSeason {
+				if s == season {
+					foods = append(foods, food)
+				}
+			}
+		}
+	}
+	return foods
+}
+
+func GetFoodsByState(state string) []Food {
+	foods := []Food{}
+	for _, food := range Foods {
+		if _, ok := food.States[state]; ok {
+			foods = append(foods, food)
+		}
+	}
+	return foods
+}
+
+func GetFoodsByStateAndSeason(state string, season int) []Food {
+	foods := []Food{}
+	for _, food := range Foods {
+		if _, ok := food.States[state]; ok {
+			for _, foodSeason := range food.States[state] {
+				if foodSeason == season {
+					foods = append(foods, food)
+				}
+			}
+		}
+	}
+	return foods
+}
+
 var States = map[string]string{
 	"AL": "Alabama",
   "AK": "Alaska",
@@ -128,7 +188,7 @@ var StateRegion = map[string]string{
   "WY": "west",
 }
 
-var seasons = map[int]string{
+var Seasons = map[int]string{
   1: "Early January",
   2: "Late January",
   3: "Early February",
@@ -153,16 +213,6 @@ var seasons = map[int]string{
   22: "Late November",
   23: "Early December",
   24: "Late December",
-}
-
-func getRegionStates(region string) []string {
-	states := []string{}
-	for state, stateRegion := range StateRegion {
-		if stateRegion == region {
-			states = append(states, state)
-		}
-	}
-	return states
 }
 
 var Foods []Food = []Food{
