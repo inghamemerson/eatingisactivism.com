@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"encoding/json"
 )
 
 type Contentful struct {
@@ -31,7 +32,7 @@ type ContentfulLocation struct {
 		Slug string `json:"slug"`
 		Url string `json:"url"`
 		ShortDescription string `json:"shortDescription"`
-		LongDescription string `json:"longDescription"`
+		LongDescription json.RawMessage `json:"longDescription"`
 		Coordinates struct {
 			Lat float64 `json:"lat"`
 			Lng float64 `json:"lon"`

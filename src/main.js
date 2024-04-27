@@ -27,12 +27,12 @@ const eia = (function() {
     Object.keys(locations).forEach(slug => {
       const location = locations[slug];
       if (debugMode) {
-        console.debug("Filtering location:", location.Slug);
+        console.debug("Filtering location:", location.slug);
         console.log(location)
       }
-      const marker = markers.get(location.Slug);
-      const hasStandard = filterStandards.size === 0 || filterStandards.has(location.Standard.Slug);
-      const hasTags = filterTags.size === 0 || location.Tags.some(tag => filterTags.has(tag.Slug));
+      const marker = markers.get(location.slug);
+      const hasStandard = filterStandards.size === 0 || filterStandards.has(location.standard.slug);
+      const hasTags = filterTags.size === 0 || location.tags.some(tag => filterTags.has(tag.slug));
 
       if (hasStandard && hasTags) {
         marker.addTo(Mapbox);
@@ -136,32 +136,32 @@ const eia = (function() {
     Object.keys(locations).forEach(slug => {
       const location = locations[slug];
       const el = document.createElement("div");
-      const isPatagonia = location.Tags.includes('patagonia') ? 'patagonia-provisions' : '';
-      el.className = `marker ${ location.Standard } ${ isPatagonia }`;
+      const isPatagonia = location.tags.includes('patagonia') ? 'patagonia-provisions' : '';
+      el.className = `marker ${ location.standard } ${ isPatagonia }`;
       const marker = new mapboxgl.Marker(el)
-        .setLngLat([location.Lng, location.Lat])
+        .setLngLat([location.lng, location.lat])
         .setPopup(
           new mapboxgl.Popup().setHTML(`
           <div class="location-popup flex flex-col ${
-            location.Standard
+            location.standard
           } ${isPatagonia}">
             <div class="location-popup-content">
               <ul class="tags">
-                ${location.Tags.map(
-                  (tag) => `<li class="tag">${tag.Icon}</li>`
+                ${location.tags.map(
+                  (tag) => `<li class="tag">${tag.icon}</li>`
                 ).join("")}
               </ul>
-              <h3>${location.Name}</h3>
-              <p>${location.ShortDescription}</p>
+              <h3>${location.name}</h3>
+              <p>${location.shortDescription}</p>
               <a class="outline-none button button-outline" href="/locations/${
-                location.Slug
+                location.slug
               }" target="_blank">Explore</a>
             </div>
           </div>
         `)
         );
 
-      markers.set(location.Slug, marker);
+      markers.set(location.slug, marker);
     });
 
     filterLocations();

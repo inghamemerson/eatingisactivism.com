@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
+	// "time"
 
 	"eatingisactivism/app/contentful"
 
@@ -12,30 +12,30 @@ import (
 )
 
 type Location struct {
-	ID string
-	Name string
-	Slug string
-	Url string
-	ShortDescription string
-	LongDescription string
-	Lat float64
-	Lng float64
-	Standard LocationStandard
-	Tags []LocationTag
+	ID string `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Url string `json:"url"`
+	ShortDescription string `json:"shortDescription"`
+	LongDescription json.RawMessage `json:"longDescription"`
+	Lat float64 `json:"lat"`
+	Lng float64 `json:"lng"`
+	Standard LocationStandard `json:"standard"`
+	Tags []LocationTag `json:"tags"`
 }
 
 type LocationStandard struct {
-	ID string
-	Name string
-	Slug string
-	Icon string
+	ID string `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Icon string `json:"icon"`
 }
 
 type LocationTag struct {
-	ID string
-	Name string
-	Slug string
-	Icon string
+	ID string `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Icon string `json:"icon"`
 }
 
 type LocationMap map[string]Location
@@ -43,9 +43,9 @@ type LocationStandardMap map[string]LocationStandard
 type LocationTagMap map[string]LocationTag
 
 var (
-	allLocations map[string]Location
-	allStandards map[string]LocationStandard
-	allTags map[string]LocationTag
+	allLocations LocationMap
+	allStandards LocationStandardMap
+	allTags LocationTagMap
 	contentfulClient *contentful.Contentful
 )
 
@@ -61,9 +61,9 @@ func init() {
 		return
 	}
 
-	allLocations = make(map[string]Location)
-	allStandards = make(map[string]LocationStandard)
-	allTags = make(map[string]LocationTag)
+	allLocations = make(LocationMap)
+	allStandards = make(LocationStandardMap)
+	allTags = make(LocationTagMap)
 
 	contentfulClient = contentful.New(contentfulApiKey, contentfulSpaceId, "master", contentfulApiBaseUrl)
 
@@ -86,26 +86,29 @@ func GetTags() LocationTagMap {
 }
 
 // PollLocations polls the Google Sheets API for new locations every 5 seconds
-func Poll() {
-	for {
-		buildData()
+// func poll() {
+// 	for {
+// 		buildData()
 
-		time.Sleep(10 * time.Second)
-	}
-}
+// 		time.Sleep(10 * time.Second)
+// 	}
+// }
 
 func buildData() {
 	newStandards := ContentfulStandards()
-	newTags := ContentfulTags()
-	newLocations := ContentfulLocations()
 
 	if len(newStandards) > 0 {
 		AddStandards(newStandards)
 	}
 
+	newTags := ContentfulTags()
+
 	if len(newTags) > 0 {
 		AddTags(newTags)
 	}
+
+	newLocations := ContentfulLocations()
+
 
 	if len(newLocations) > 0 {
 		AddLocations(newLocations)
@@ -115,11 +118,14 @@ func buildData() {
 func removeEntry(contentType string, id string) {
 	switch contentType {
 		case "location":
-			delete(allLocations, id)
+			location := GetLocationByID(id)
+			delete(allLocations, location.Slug)
 		case "standard":
-			delete(allStandards, id)
+			standard := GetStandardByID(id)
+			delete(allStandards, standard.Slug)
 		case "tags":
-			delete(allTags, id)
+			tag := GetTagByID(id)
+			delete(allTags, tag.Slug)
 	}
 }
 
@@ -160,7 +166,9 @@ func ContentfulLocations() []Location {
 		tags := []LocationTag{}
 
 		for _, tag := range location.Fields.Tags {
-			tags = append(tags, GetTagByID(tag.Sys.ID))
+			foundTag := GetTagByID(tag.Sys.ID)
+
+			tags = append(tags, foundTag)
 		}
 
 		locations = append(locations, Location{
@@ -397,6 +405,16 @@ func GetTagBySlug(slug string) LocationTag {
 	return LocationTag{}
 }
 
+func GetLocationByID(id string) Location {
+	for _, location := range allLocations {
+		if location.ID == id {
+			return location
+		}
+	}
+
+	return Location{}
+}
+
 func GetTagByID(id string) LocationTag {
 	for _, tag := range allTags {
 		if tag.ID == id {
@@ -432,12 +450,12 @@ func HandleWebhook(webhookType string, data []byte) {
 	switch webhookType {
 	case contentful.WebhookPublish:
 		getEntry(webhook.Sys.ContentType.Sys.ID, entryID)
+	case contentful.WebhookUnarchive:
+		getEntry(webhook.Sys.ContentType.Sys.ID, entryID)
 	case contentful.WebhookUnpublish:
 		removeEntry(webhook.Sys.ContentType.Sys.ID, entryID)
 	case contentful.WebhookArchive:
 		removeEntry(webhook.Sys.ContentType.Sys.ID, entryID)
-	case contentful.WebhookUnarchive:
-		getEntry(webhook.Sys.ContentType.Sys.ID, entryID)
 	case contentful.WebhookDelete:
 		removeEntry(webhook.Sys.ContentType.Sys.ID, entryID)
 	}
@@ -452,7 +470,6 @@ func FilterLocations(standards []string, tags []string) LocationMap {
 			continue
 		}
 
-		// need to make an array of the location tag slugs
 		tagSlugs := []string{}
 
 		for _, tag := range location.Tags {

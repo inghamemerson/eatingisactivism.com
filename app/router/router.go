@@ -71,12 +71,11 @@ func LoadTemplates() multitemplate.Renderer {
 }
 
 func Router() *gin.Engine {
-	r := gin.New()
+	r := gin.Default()
 
 	r.HTMLRender = LoadTemplates()
 
 	r.Use(brotli.Brotli(brotli.DefaultCompression))
-	r.Use(gin.Recovery())
 	r.Use(healthcheck.Default())
 
 	r.NoRoute(func(c *gin.Context) {
@@ -171,7 +170,7 @@ func Router() *gin.Engine {
 				standards = strings.Split(standardsParam, ",")
 			}
 
-			var locs locations.LocationMap = locations.LocationMap{}
+			var locs = locations.LocationMap{}
 
 			if (len(tags) != 0 || len(standards) != 0) {
 				locs = locations.FilterLocations(standards, tags)
@@ -189,8 +188,11 @@ func Router() *gin.Engine {
 			topic := c.GetHeader("X-Contentful-Topic")
 
 			if err != nil {
-				locations.HandleWebhook(topic, jsonData)
+				renderJSONError(c, http.StatusBadRequest, "Error reading request body")
+				return
 			}
+
+			locations.HandleWebhook(topic, jsonData)
 		})
 	}
 
