@@ -5,10 +5,10 @@ go 1.22.2
 require (
 	github.com/RaMin0/gin-health-check v0.0.0-20180807004848-a677317b3f01
 	github.com/anargu/gin-brotli v0.0.0-20220116052358-12bf532d5267
-	github.com/gin-contrib/multitemplate v1.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1
 	github.com/semihalev/gin-stats v0.0.0-20180505163755-30fdcbbd3533
+	github.com/unrolled/render v1.6.1
 )
 
 require (
@@ -34,7 +34,6 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	github.com/unrolled/render v1.6.1 // indirect
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/net v0.24.0 // indirect

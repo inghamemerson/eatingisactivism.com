@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta property="og:type" content="website">
+  <title>{{ block "title" . }}{{ end }}</title>
+  <meta name="description" content="{{ block "description" . }}{{ end }}">
+  <meta property="og:title" content="{{ block "title" . }}{{ end }}">
+  <meta property="og:description" content="{{ block "description" . }}{{ end }}">
+  {{ block "head" . }}{{ end }}
+  <link rel="stylesheet" href="/public/styles.css">
+</head>
+
+<body class='flex flex-col font-sans {{ block "bodyClass" . }}{{ end }}''>
+  {{ if .Nav }}
+    {{ template "global/navigation" . }}
+  {{ end }}
+
+  <main class='grow {{ block "mainClass" . }}{{ end }}'>
+    {{ yield }}
+  </main>
+
+  {{ if .Footer }}
+    {{ template "global/footer" . }}
+  {{ end }}
+</body>
+
+</html>
