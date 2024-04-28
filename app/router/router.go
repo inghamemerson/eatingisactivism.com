@@ -15,19 +15,21 @@ import (
 
 	healthcheck "github.com/RaMin0/gin-health-check"
 	brotli "github.com/anargu/gin-brotli"
-	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/semihalev/gin-stats"
+	"github.com/unrolled/render"
 )
 
 var (
 	mapboxToken string
+	environment string
 )
 
 func init() {
 	godotenv.Load(".env")
 	mapboxToken = os.Getenv("MAPBOX_TOKEN")
+	environment = os.Getenv("GIN_MODE")
 
 	if (mapboxToken == "") {
 		panic("MAPBOX_TOKEN not found in .env")
@@ -44,7 +46,7 @@ func staticCacheMiddleware() gin.HandlerFunc {
 }
 
 func renderHTMLError(c *gin.Context, status int, message string) {
-	c.HTML(status, "error.html.tmpl", gin.H{
+	c.HTML(status, "pages/error", gin.H{
 		"status": status,
 		"message": message,
 	})
@@ -59,24 +61,13 @@ func renderJSONError(c *gin.Context, status int, message string) {
 	c.Abort()
 }
 
-func LoadTemplates() multitemplate.Renderer {
-	r := multitemplate.NewRenderer()
-	baseTemplatePath := "./app/templates/layouts/base.html.tmpl"
-	unauthedTemplatePath := "./app/templates/layouts/unauthed.html.tmpl"
-
-	r.AddFromFiles("login.html.tmpl", unauthedTemplatePath, "./app/templates/pages/login.html.tmpl")
-	r.AddFromFiles("home.html.tmpl", baseTemplatePath, "./app/templates/pages/home.html.tmpl")
-	r.AddFromFiles("error.html.tmpl", baseTemplatePath, "./app/templates/pages/error.html.tmpl")
-	r.AddFromFiles("location-single.html.tmpl", baseTemplatePath, "./app/templates/pages/location-single.html.tmpl")
-	r.AddFromFiles("locations.html.tmpl", baseTemplatePath, "./app/templates/pages/locations.html.tmpl")
-
-	return r
-}
-
 func Router() *gin.Engine {
 	r := gin.Default()
-
-	r.HTMLRender = LoadTemplates()
+	renderer := render.New(render.Options{
+		Extensions: []string{".tmpl"},
+		IndentJSON: true,
+		IsDevelopment: environment != "release",
+	})
 
 	r.Use(brotli.Brotli(brotli.DefaultCompression))
 	r.Use(healthcheck.Default())
@@ -99,7 +90,7 @@ func Router() *gin.Engine {
 	r.Static("/public", "./public")
 
 	r.GET("/login", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "login.html.tmpl", gin.H{})
+		renderer.HTML(c.Writer, http.StatusOK, "pages/login", gin.H{})
 	})
 
 	r.POST("/login", func(c *gin.Context) {
@@ -120,7 +111,7 @@ func Router() *gin.Engine {
 			locs := locations.GetLocations()
 			locationJSON, _ := json.Marshal(locs)
 
-			c.HTML(http.StatusOK, "home.html.tmpl", gin.H{
+			renderer.HTML(c.Writer, http.StatusOK, "pages/home", gin.H{
 				"locations": locs,
 				"standards": locations.GetStandards(),
 				"tags": locations.GetTags(),
@@ -130,7 +121,7 @@ func Router() *gin.Engine {
 		})
 
 		authorized.GET("/locations", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "locations.html.tmpl", gin.H{
+			renderer.HTML(c.Writer, http.StatusOK, "pages/locations", gin.H{
 				"locations": locations.GetLocations(),
 			})
 		})
@@ -144,7 +135,7 @@ func Router() *gin.Engine {
 				return
 			}
 
-			c.HTML(http.StatusOK, "location-single.html.tmpl", gin.H{
+			renderer.HTML(c.Writer, http.StatusOK, "pages/location-single", gin.H{
 				"location": location,
 			})
 		})
@@ -155,7 +146,7 @@ func Router() *gin.Engine {
 		v1.Use(stats.RequestStats())
 
 		v1.GET("/stats", func(c *gin.Context) {
-			c.JSON(http.StatusOK, stats.Report())
+			renderer.JSON(c.Writer, http.StatusOK, stats.Report())
 		})
 
 		v1.GET("/locations", func(c *gin.Context) {
@@ -181,11 +172,11 @@ func Router() *gin.Engine {
 				locs = locations.GetLocations()
 			}
 
-			c.JSON(http.StatusOK, locs)
+			renderer.JSON(c.Writer, http.StatusOK, locs)
 		})
 
 		v1.GET("/foods", func(c *gin.Context) {
-			c.JSON(http.StatusOK, seasons.GetFoods())
+			renderer.JSON(c.Writer, http.StatusOK, seasons.GetFoods())
 		})
 
 		v1.GET("/seasons/:season", func(c *gin.Context) {
@@ -205,7 +196,7 @@ func Router() *gin.Engine {
 
 			foods := seasons.GetFoodsBySeason(seasonInt)
 
-			c.JSON(http.StatusOK, foods)
+			renderer.JSON(c.Writer, http.StatusOK, foods)
 		})
 
 		v1.GET("/states/:state", func(c *gin.Context) {
@@ -218,7 +209,7 @@ func Router() *gin.Engine {
 
 			foods := seasons.GetFoodsByState(state)
 
-			c.JSON(http.StatusOK, foods)
+			renderer.JSON(c.Writer, http.StatusOK, foods)
 		})
 
 		v1.GET("/states/:state/seasons/:season", func(c *gin.Context) {
@@ -251,7 +242,7 @@ func Router() *gin.Engine {
 
 			foods := seasons.GetFoodsByStateAndSeason(state, seasonInt)
 
-			c.JSON(http.StatusOK, foods)
+			renderer.JSON(c.Writer, http.StatusOK, foods)
 		})
 
 		// route to accept webhook from contentful
