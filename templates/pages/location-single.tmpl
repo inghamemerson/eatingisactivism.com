@@ -1,30 +1,22 @@
-{{ define "title" }}{{ .location.Name }} | Eating is Activism{{ end }}
-{{ define "description"}}{{ .location.Description }}{{ end }}
+{{ define "title-pages/location-single" }}{{ .location.Name }} | Eating is Activism{{ end }}
+{{ define "description-pages/location-single"}}{{ .location.ShortDescription }}{{ end }}
 
-{{ define "head" }}
+{{ define "head-pages/location-single" }}
 <meta property="og:url" content="https://eatingisactivism.com/locations/{{ .location.Slug }}">
 <script src="/public/util.js"></script>
 {{ end }}
 
-{{ define "mainClass" }}bg-pg-tan{{ end }}
+{{ define "mainClass-pages/location-single" }}bg-pg-tan{{ end }}
 
-{{ define "content" }}
 <section class="container max-w-xl mx-auto px-4 ">
   <article class="pt-24 pb-4 px-4 border-8 border-black rounded-md mt-10 mb-20 sm:mt-20 lg:mt-24 bg-white location-single">
     <h1 class="text-center font-semibold text-3xl mb-10">{{ .location.Name }}</h1>
-    <div id="tags" class="tags"></div>
-    <p class="mb-10">{{ .location.Description }}</p>
+    <div id="tags" class="tags">
+      {{ range .location.Tags }}
+      <li class="tag">{{ safeHTML .Icon }}</li>
+      {{ end }}
+    </div>
+    <p class="mb-10">{{ .location.ShortDescription }}</p>
     <a href="{{ .location.Url }}" target="_blank" class="button button-outline">Visit Site</a>
   </article>
 </section>
-<script>
-  const tags = {{ .location.Tags }};
-  const tagsEl = document.getElementById('tags');
-  tags.forEach(tag => {
-    const tagEl = document.createElement('li');
-    tagEl.classList.add('tag');
-    tagEl.innerHTML = util.renderTagIcon(tag);
-    tagsEl.appendChild(tagEl);
-  });
-</script>
-{{ end }}

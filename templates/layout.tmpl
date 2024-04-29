@@ -6,20 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta property="og:type" content="website">
-  <title>{{ block "title" . }}{{ end }}</title>
-  <meta name="description" content="{{ block "description" . }}{{ end }}">
-  <meta property="og:title" content="{{ block "title" . }}{{ end }}">
-  <meta property="og:description" content="{{ block "description" . }}{{ end }}">
-  {{ block "head" . }}{{ end }}
+  <title>{{ partial "title" }}</title>
+  <meta name="description" content="{{ partial "description" }}">
+  <meta property="og:title" content="{{ partial "title" }}">
+  <meta property="og:description" content="{{ partial "description" }}">
+  {{ partial "head" }}
   <link rel="stylesheet" href="/public/styles.css">
 </head>
 
-<body class='flex flex-col font-sans {{ block "bodyClass" . }}{{ end }}''>
+<body class='flex flex-col font-sans {{ partial "bodyClass" }}'>
   {{ if .Nav }}
     {{ template "global/navigation" . }}
   {{ end }}
 
-  <main class='grow {{ block "mainClass" . }}{{ end }}'>
+  <main class='grow {{ partial "mainClass" }}'>
     {{ yield }}
   </main>
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"slices"
 	"strconv"
+	"html/template"
 
 	"eatingisactivism/app/auth"
 	"eatingisactivism/app/locations"
@@ -34,6 +35,12 @@ func init() {
 	if (mapboxToken == "") {
 		panic("MAPBOX_TOKEN not found in .env")
 	}
+}
+
+// function takes a string and returns HTML
+// This will be used inside of templates
+func safeHTML(s string) template.HTML {
+	return template.HTML(s)
 }
 
 func staticCacheMiddleware() gin.HandlerFunc {
@@ -65,8 +72,14 @@ func Router() *gin.Engine {
 	r := gin.Default()
 	renderer := render.New(render.Options{
 		Extensions: []string{".tmpl"},
+		Funcs: []template.FuncMap{
+			{
+				"safeHTML": safeHTML,
+			},
+		},
 		IndentJSON: true,
 		IsDevelopment: environment != "release",
+		Layout: "layout",
 	})
 
 	r.Use(brotli.Brotli(brotli.DefaultCompression))

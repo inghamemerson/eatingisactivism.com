@@ -1,7 +1,5 @@
-{{ define "title" }}Locations | Eating is Activism{{ end }}
-{{ define "description"}}A list of food producers and purveyors that strive for regenerative practices.{{ end }}
-
-{{ define "content" }}
+{{ define "title-pages/locations" }}Locations | Eating is Activism{{ end }}
+{{ define "description-pages/locations"}}A list of food producers and purveyors that strive for regenerative practices.{{ end }}
 
 <section class="container mb-20 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
   {{ range .locations }}
@@ -12,5 +10,3 @@
   </a>
   {{ end }}
 </section>
-
-{{ end }}
