@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"encoding/json"
+	"html/template"
 )
 
 type Contentful struct {
@@ -163,4 +164,111 @@ func (c *Contentful) GetEntries(contentType string, limit int, offset int, id st
 	}
 
 	return resBody, nil
+}
+
+
+
+type NodeData map[string]interface{}
+
+type Node struct {
+	NodeType string `json:"nodeType"`
+	Data NodeData `json:"data"`
+}
+
+type Mark struct {
+	Type string `json:"type"`
+}
+
+type Text struct {
+	*Node
+	Value string `json:"value"`
+	Marks []Mark `json:"marks"`
+}
+
+type Inline struct {
+	*Node
+	Content []interface{} `json:"content"`
+}
+
+type Block struct {
+	*Node
+	Content []interface{} `json:"content"`
+}
+
+
+func RichTextToHTMLString(data json.RawMessage) template.HTML {
+	var document []interface{}
+
+	err := json.Unmarshal(data, &document)
+
+	if err != nil {
+		return ""
+	}
+
+	if (document == nil) {
+		return ""
+	}
+
+	if (len(document.content) == 0) {
+		return ""
+	}
+
+	return template.HTML(output)
+}
+
+func NodeListToString(data []interface{}) (string, error) {
+
+}
+
+func NodeToString(data interface{}) (string, error) {
+	var content map[string]interface{}
+
+	err := json.Unmarshal(data, &content)
+
+	if err != nil {
+		return "", err
+	}
+
+	if (content == nil) {
+		return "", nil
+	}
+
+	switch content["nodeType"] {
+		case "document":
+		case "paragraph":
+		case "heading-1":
+		case "heading-2":
+		case "heading-3":
+		case "heading-4":
+		case "heading-5":
+		case "heading-6":
+		case "ordered-list":
+		case "unordered-list":
+		case "list-item":
+		case "hr":
+		case "blockquote":
+		case "embedded-entry-block":
+		case "embedded-asset-block":
+		case "embedded-resource-block":
+		case "table":
+		case "table-row":
+		case "table-cell":
+		case "table-header-cell":
+
+		case "hyperlink":
+		case "entry-hyperlink":
+		case "asset-hyperlink":
+		case "resource-hyperlink":
+		case "embedded-entry-inline":
+		case "embedded-resource-inline":
+
+		case "bold":
+		case "italic":
+		case "underline":
+		case "code":
+		case "superscript":
+		case "subscript":
+	}
+
+	return fmt.Sprintf("%s", content)
 }
