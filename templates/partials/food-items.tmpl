@@ -1,0 +1,12 @@
+<p class="font-bold mb-4 text-xl">In-season foods.</p>
+<ul class="gap-2">
+  {{ range $key, $value := .inSeason }}
+    <li class="{{ $key }} w-8 h-8">{{ $value }}</li>
+  {{ end }}
+</ul>
+<p class="font-bold mb-4 text-xl">Next season&rsquo;s foods.</p>
+<ul class="gap-2">
+  {{ range $key, $value := .nextSeason }}
+    <li class="{{ $key }} w-8 h-8">{{ $value }}</li>
+  {{ end }}
+</ul>

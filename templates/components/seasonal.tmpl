@@ -1,0 +1,17 @@
+<div class="bg-tan">
+  <section class="container max-w-2xl mx-auto px-4 py-24">
+    <select hx-get="/foods" hx-target="#foods" name="state" hx-include="[name='season']">
+      <option value="">Choose state</option>
+      {{ range $key, $value := .states }}
+        <option value="{{ $key }}">{{ $value }}</option>
+      {{ end }}
+    </select>
+    <select hx-get="/foods" hx-target="#foods" name="season" hx-include="[name='state']">
+      <option value="">Choose season</option>
+      {{ range $key, $value := .seasons }}
+        <option value="{{ $key }}">{{ $value }}</option>
+      {{ end }}
+    </select>
+    <div id="foods"></div>
+  </section>
+</div>

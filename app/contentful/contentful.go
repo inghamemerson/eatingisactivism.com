@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 	"encoding/json"
-	"html/template"
+	// "html/template"
 )
 
 type Contentful struct {
@@ -196,38 +196,38 @@ type Block struct {
 }
 
 
-func RichTextToHTMLString(data json.RawMessage) template.HTML {
-	var document []interface{}
+// func RichTextToHTMLString(data json.RawMessage) template.HTML {
+// 	var document []interface{}
 
-	err := json.Unmarshal(data, &document)
+// 	err := json.Unmarshal(data, &document)
 
-	if err != nil {
-		return ""
-	}
+// 	if err != nil {
+// 		return ""
+// 	}
 
-	if (document == nil) {
-		return ""
-	}
+// 	if (document == nil) {
+// 		return ""
+// 	}
 
-	if (len(document.content) == 0) {
-		return ""
-	}
+// 	if (len(document.content) == 0) {
+// 		return ""
+// 	}
 
-	return template.HTML(output)
-}
+// 	return template.HTML(output)
+// }
 
-func NodeListToString(data []interface{}) (string, error) {
+// func NodeListToString(data []interface{}) (string, error) {
 
-}
+// }
 
 func NodeToString(data interface{}) (string, error) {
 	var content map[string]interface{}
 
-	err := json.Unmarshal(data, &content)
+	// err := json.Unmarshal(data, &content)
 
-	if err != nil {
-		return "", err
-	}
+	// if err != nil {
+	// 	return "", err
+	// }
 
 	if (content == nil) {
 		return "", nil
@@ -270,5 +270,5 @@ func NodeToString(data interface{}) (string, error) {
 		case "subscript":
 	}
 
-	return fmt.Sprintf("%s", content)
+	return fmt.Sprintf("%s", content), nil
 }

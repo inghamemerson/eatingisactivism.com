@@ -1,7 +1,5 @@
 package seasons
 
-import ()
-
 type Food struct {
 	ID int `json:"id"`
 	Name string `json:"name"`
@@ -433,7 +431,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 4,
-		Name: "Asian Pears",
+		Name: "asian pears",
     Category: "Asian Pears",
     Kind: "fruit",
     Slug: "fruit-asian-pears",
@@ -727,7 +725,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 12,
-		Name: "Black Sapote",
+		Name: "black sapote",
     Category: "black-sapote",
     Kind: "fruit",
     Slug: "black-sapote",
@@ -740,7 +738,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 13,
-		Name: "Black Eyed Peas",
+		Name: "black eyed peas",
     Category: "shell-beans",
     Kind: "legume",
     Slug: "legume-black-eyed-peas",
@@ -920,7 +918,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 16,
-		Name: "Bok Choy",
+		Name: "bok choy",
     Category: "Bok Choy",
     Kind: "vegetable",
     Slug: "vegetable-bok-choy",
@@ -1173,7 +1171,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 21,
-		Name: "Brussels Sprouts",
+		Name: "brussels sprouts",
     Category: "Brussels Sprouts",
     Kind: "vegetable",
     Slug: "vegetable-brussels-sprouts",
@@ -1317,7 +1315,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 24,
-		Name: "Cactus Pears",
+		Name: "cactus pears",
     Category: "prickly-pears-and-nopales",
     Kind: "fruit",
     Slug: "cactus-pears",
@@ -1683,7 +1681,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 32,
-		Name: "Celery Root",
+		Name: "celery root",
     Category: "Celery Root",
     Kind: "vegetable",
     Slug: "vegetable-celery-root",
@@ -1995,7 +1993,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 39,
-		Name: "Chili Peppers",
+		Name: "chili peppers",
     Category: "peppers",
     Kind: "vegetable",
     Slug: "vegetable-chili-peppers",
@@ -2243,7 +2241,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 45,
-		Name: "Collard Greens",
+		Name: "collard greens",
     Category: "Collard Greens",
     Kind: "vegetable",
     Slug: "vegetable-collard-greens",
@@ -2513,7 +2511,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 51,
-		Name: "Dragon Fruit",
+		Name: "dragon fruit",
     Category: "dragon-fruit",
     Kind: "fruit",
     Slug: "dragon-fruit",
@@ -2678,7 +2676,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 55,
-		Name: "Fava Beans",
+		Name: "fava beans",
     Category: "Fava Beans",
     Kind: "legume",
     Slug: "legume-fava-beans",
@@ -2891,7 +2889,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 60,
-		Name: "Garlic Scapes",
+		Name: "garlic scapes",
     Category: "Garlic Scapes",
     Kind: "vegetable",
     Slug: "vegetable-garlic-scapes",
@@ -3118,7 +3116,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 65,
-		Name: "Green Beans",
+		Name: "green beans",
     Category: "snap-beans",
     Kind: "vegetable",
     Slug: "vegetable-green-beans",
@@ -3183,7 +3181,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 66,
-		Name: "Green Onions",
+		Name: "green onions",
     Category: "scallions-Green-Onions",
     Kind: "vegetable",
     Slug: "vegetable-green-onions",
@@ -3249,7 +3247,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 67,
-		Name: "Ground Cherries",
+		Name: "ground cherries",
     Category: "Ground Cherries",
     Kind: "fruit",
     Slug: "fruit-ground-cherries",
@@ -3571,7 +3569,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 76,
-		Name: "Lamb's Quarters",
+		Name: "lamb's quarters",
     Category: "Lamb's Quarters",
     Kind: "vegetable",
     Slug: "vegetable-lambs-quarters",
@@ -3866,7 +3864,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 82,
-		Name: "Lima Beans",
+		Name: "lima beans",
     Category: "shell-Beans",
     Kind: "legume",
     Slug: "legume-lima-beans",
@@ -4000,7 +3998,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 87,
-		Name: "Malabar Spinach",
+		Name: "malabar spinach",
     Category: "malabar-spinach",
     Kind: "vegetable",
     Slug: "malabar-spinach",
@@ -4017,7 +4015,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 88,
-		Name: "Mamey Sapote",
+		Name: "mamey sapote",
     Category: "mamey-sapote",
     Kind: "fruit",
     Slug: "mamey-sapote",
@@ -4343,7 +4341,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 97,
-		Name: "Mustard Greens",
+		Name: "mustard greens",
     Category: "Mustard Greens",
     Kind: "vegetable",
     Slug: "vegetable-mustard-greens",
@@ -4407,7 +4405,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 98,
-		Name: "Mysore Raspberries",
+		Name: "mysore raspberries",
     Category: "brambles-aka-blackberries-raspberries-and-more",
     Kind: "fruit",
     Slug: "mysore-raspberry",
@@ -4970,7 +4968,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 113,
-		Name: "Pea Shoots",
+		Name: "pea shoots",
     Category: "peas",
     Kind: "vegetable",
     Slug: "vegetable-pea-shoots",
@@ -5374,7 +5372,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 121,
-		Name: "Pigeon Peas",
+		Name: "pigeon peas",
     Category: "pigeon-peas",
     Kind: "legume",
     Slug: "pigeon-peas",
@@ -6469,7 +6467,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 144,
-		Name: "Shell Beans",
+		Name: "shell beans",
     Category: "Shell Beans",
     Kind: "legume",
     Slug: "legume-shell-beans",
@@ -6533,7 +6531,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 145,
-		Name: "Snap Peas",
+		Name: "snap peas",
     Category: "snow-Peas-and-sugar-snaps",
     Kind: "vegetable",
     Slug: "vegetable-snap-peas",
@@ -6587,7 +6585,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 146,
-		Name: "Snow Peas",
+		Name: "snow peas",
     Category: "Snow Peas",
     Kind: "vegetable",
     Slug: "vegetable-snow-peas",
@@ -6929,7 +6927,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 153,
-		Name: "Summer Squash",
+		Name: "summer squash",
     Category: "zucchini-and-Summer-Squash",
     Kind: "vegetable",
     Slug: "vegetable-summer-squash",
@@ -7058,7 +7056,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 155,
-		Name: "Sweet Potatoes",
+		Name: "sweet potatoes",
     Category: "Sweet Potatoes",
     Kind: "vegetable",
     Slug: "vegetable-sweet-potatoes",
@@ -7157,7 +7155,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 158,
-		Name: "Taro Leaf",
+		Name: "taro leaf",
     Category: "taro",
     Kind: "vegetable",
     Slug: "taro-leaf",
@@ -7644,7 +7642,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 167,
-		Name: "White Sapote",
+		Name: "white sapote",
     Category: "white-sapote",
     Kind: "fruit",
     Slug: "white-sapote",
@@ -7661,7 +7659,7 @@ var Foods []Food = []Food{
   },
   {
     ID: 168,
-		Name: "Winter Squash",
+		Name: "winter squash",
     Category: "real-food-encyclopedia-Winter-Squash",
     Kind: "vegetable",
     Slug: "vegetable-winter-squash",

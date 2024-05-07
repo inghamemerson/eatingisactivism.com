@@ -126,6 +126,8 @@ func Router() *gin.Engine {
 
 			renderer.HTML(c.Writer, http.StatusOK, "pages/home", gin.H{
 				"locations": locs,
+				"states": seasons.States,
+				"seasons": seasons.Seasons,
 				"standards": locations.GetStandards(),
 				"tags": locations.GetTags(),
 				"locationsJSON": string(locationJSON),
@@ -150,6 +152,53 @@ func Router() *gin.Engine {
 
 			renderer.HTML(c.Writer, http.StatusOK, "pages/location-single", gin.H{
 				"location": location,
+			})
+		})
+
+		authorized.GET("/foods", func(c *gin.Context) {
+			// log the request
+			state := c.Query("state") // string
+			season := c.Query("season") // int
+			nextSeasonInt := 0;
+
+			// if we don't have a season or a state param, we return a 204
+			if (state == "" || season == "") {
+				renderer.HTML(c.Writer, http.StatusNoContent, "partials/empty", gin.H{})
+				return
+			}
+
+			// cast season to int
+			seasonInt, err := strconv.Atoi(season)
+
+			if (err != nil) {
+				seasonInt = 0
+			}
+
+			// if season is 24, we need to set next season to 1
+			if (seasonInt == 24) {
+				nextSeasonInt = 1
+			} else {
+				nextSeasonInt = seasonInt + 1
+			}
+
+			inSeasonFoods := seasons.GetFoodsByStateAndSeason(state, seasonInt)
+			nextSeasonFoods := seasons.GetFoodsByStateAndSeason(state, nextSeasonInt)
+
+			// now we need to get turn the result into an array of food Names
+			inSeason := map[string]string{}
+			nextSeason := map[string]string{}
+
+			for _, food := range inSeasonFoods {
+				inSeason[food.Slug] = food.Name
+			}
+
+			for _, food := range nextSeasonFoods {
+				nextSeason[food.Slug] = food.Name
+			}
+
+			renderer.HTML(c.Writer, http.StatusOK, "partials/food-items", gin.H{
+				"inSeason": inSeason,
+				"nextSeason": nextSeason,
 			})
 		})
 	}
