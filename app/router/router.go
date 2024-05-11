@@ -70,6 +70,11 @@ func renderJSONError(c *gin.Context, status int, message string) {
 
 func Router() *gin.Engine {
 	r := gin.Default()
+	r.SetFuncMap(template.FuncMap{
+		"safeHTML": safeHTML,
+	})
+	r.LoadHTMLGlob("templates/**/*.tmpl")
+
 	renderer := render.New(render.Options{
 		Extensions: []string{".tmpl"},
 		Funcs: []template.FuncMap{
@@ -161,42 +166,40 @@ func Router() *gin.Engine {
 			season := c.Query("season") // int
 			nextSeasonInt := 0;
 
-			// if we don't have a season or a state param, we return a 204
-			if (state == "" || season == "") {
-				renderer.HTML(c.Writer, http.StatusNoContent, "partials/empty", gin.H{})
-				return
-			}
-
-			// cast season to int
-			seasonInt, err := strconv.Atoi(season)
-
-			if (err != nil) {
-				seasonInt = 0
-			}
-
-			// if season is 24, we need to set next season to 1
-			if (seasonInt == 24) {
-				nextSeasonInt = 1
-			} else {
-				nextSeasonInt = seasonInt + 1
-			}
-
-			inSeasonFoods := seasons.GetFoodsByStateAndSeason(state, seasonInt)
-			nextSeasonFoods := seasons.GetFoodsByStateAndSeason(state, nextSeasonInt)
-
-			// now we need to get turn the result into an array of food Names
 			inSeason := map[string]string{}
 			nextSeason := map[string]string{}
 
-			for _, food := range inSeasonFoods {
-				inSeason[food.Slug] = food.Name
+			// if we don't have a season or a state param, we return a 204
+			if (state != "" && season != "") {
+				// cast season to int
+				seasonInt, err := strconv.Atoi(season)
+
+				if (err != nil) {
+					seasonInt = 0
+				}
+
+				// if season is 24, we need to set next season to 1
+				if (seasonInt == 24) {
+					nextSeasonInt = 1
+				} else {
+					nextSeasonInt = seasonInt + 1
+				}
+
+				inSeasonFoods := seasons.GetFoodsByStateAndSeason(state, seasonInt)
+				nextSeasonFoods := seasons.GetFoodsByStateAndSeason(state, nextSeasonInt)
+
+				for _, food := range inSeasonFoods {
+					inSeason[food.Slug] = food.Name
+				}
+
+				for _, food := range nextSeasonFoods {
+					nextSeason[food.Slug] = food.Name
+				}
 			}
 
-			for _, food := range nextSeasonFoods {
-				nextSeason[food.Slug] = food.Name
-			}
+			tmplFile := "food-items.tmpl"
 
-			renderer.HTML(c.Writer, http.StatusOK, "partials/food-items", gin.H{
+			c.HTML(http.StatusOK, tmplFile, gin.H{
 				"inSeason": inSeason,
 				"nextSeason": nextSeason,
 			})
